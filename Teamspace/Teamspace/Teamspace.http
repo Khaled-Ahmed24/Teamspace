@@ -1,0 +1,6 @@
+@Teamspace_HostAddress = http://localhost:5102
+
+GET {{Teamspace_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
