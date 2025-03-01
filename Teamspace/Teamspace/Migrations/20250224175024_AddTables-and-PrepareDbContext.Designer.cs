@@ -12,7 +12,7 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250223231446_AddTables-and-PrepareDbContext")]
+    [Migration("20250224175024_AddTables-and-PrepareDbContext")]
     partial class AddTablesandPrepareDbContext
     {
         /// <inheritdoc />
