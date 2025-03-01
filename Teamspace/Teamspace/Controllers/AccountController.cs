@@ -17,8 +17,22 @@ namespace Teamspace.Controllers
             _db = db;
         }
 
-       
 
+        [HttpGet("AllByRole")]
+        public async Task<IActionResult> GetAllByRole(int role)
+        {
+            if (role == 0)
+            {
+                var students = await _db.Students.ToListAsync();
+                return Ok(students);
+            }
+            else if (role == 1)
+            {
+                var staffs = await _db.Staffs.ToListAsync();
+                return Ok(staffs);
+            }
+            return BadRequest("Invalid role please ensure you select a valid role :)");
+        }
         [HttpPost("CreateByExcel")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
