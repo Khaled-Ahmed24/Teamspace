@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using Teamspace.Configurations;
+using Teamspace.DTO;
 using Teamspace.Models;
 using Teamspace.SpaghettiModels;
 
@@ -46,7 +47,45 @@ namespace Teamspace.Controllers
 
             return NotFound("Email not found :(");
         }
-        [HttpPost("CreateByExcel")]
+        [HttpPost("Create")]
+        public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
+        {
+            if (role == 0)
+            {
+                var student = new Student
+                {
+                    Email = account.Email,
+                    Name = account.Name,
+                    Gender = account.Gender,
+                    PhoneNumber = account.PhoneNumber,
+                    NationalId = account.NationalId,
+                    Year = account.Year,
+                    Password = account.Password,
+                    DepartmentId = account.DepartmentId
+                };
+                await _db.Students.AddAsync(student);
+                await _db.SaveChangesAsync();
+                return Ok(account);
+            }
+            else if(role == 1)
+            {
+                var staff = new Staff
+                {
+                    Email = account.Email,
+                    Name = account.Name,
+                    Gender = account.Gender,
+                    PhoneNumber = account.PhoneNumber,
+                    NationalId = account.NationalId,
+                    Password = account.Password
+                };
+                await _db.Staffs.AddAsync(staff);
+                await _db.SaveChangesAsync();
+                return Ok(account);
+            }
+            return BadRequest("Invalid role please ensure you select a valid role :)");
+
+        }
+        [HttpPost("AddByExcel")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
             if (file == null || file.ExcelFile.Length == 0)
