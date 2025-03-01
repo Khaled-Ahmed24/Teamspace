@@ -181,5 +181,28 @@ namespace Teamspace.Controllers
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
+        [HttpDelete("Delete")]
+        public async Task<IActionResult> Delete(int role, string email)
+        {
+            if(role == 0)
+            {
+                var student = await _db.Students.SingleOrDefaultAsync(s => s.Email == email);
+                if( student == null)
+                    return NotFound("Student not found :(");
+                _db.Students.Remove(student);
+                await _db.SaveChangesAsync();
+                return Ok(student);
+            }
+            else if(role == 1)
+            {
+                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Email == email);
+                if (staff == null)
+                    return NotFound("Staff not found :(");
+                _db.Staffs.Remove(staff);
+                await _db.SaveChangesAsync();
+                return Ok(staff);
+            }
+            return BadRequest("Invalid role please ensure you select a valid role :)");
+        }
     }
 }
