@@ -33,6 +33,19 @@ namespace Teamspace.Controllers
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
+        [HttpGet("ByEmail")]
+        public async Task<IActionResult> GetByEmail(string email)
+        {
+            var student = await _db.Students.SingleOrDefaultAsync(s => s.Email == email);
+            if(student != null)
+                return Ok(student);
+
+            var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Email == email);
+            if(staff != null)
+                return Ok(staff);
+
+            return NotFound("Email not found :(");
+        }
         [HttpPost("CreateByExcel")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
