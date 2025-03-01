@@ -47,7 +47,7 @@ namespace Teamspace.Controllers
 
             return NotFound("Email not found :(");
         }
-        [HttpPost("Create")]
+        [HttpPost("Add")]
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
             if (role == 0)
@@ -147,7 +147,39 @@ namespace Teamspace.Controllers
                 }
             }
         }
+        [HttpPut("Update")]
+        public async Task<IActionResult> Update([FromQuery] int role, [FromForm] Account account)
+        {
+            if(role == 0)
+            {
+                var student = await _db.Students.SingleOrDefaultAsync(s => s.Email == account.Email);
+                if (student == null)
+                    return NotFound("Student not found :(");
 
-       
+                student.Name = account.Name;
+                student.PhoneNumber = account.PhoneNumber;
+                student.NationalId = account.NationalId;
+                student.Year = account.Year;
+                student.Password = account.Password;
+                student.DepartmentId = account.DepartmentId;
+                student.PhoneNumber = account.PhoneNumber;
+                await _db.SaveChangesAsync();
+                return Ok(student); 
+            }
+            else if(role == 1)
+            {
+                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Email == account.Email);
+                if (staff == null)
+                    return NotFound("Staff not found :(");
+                staff.Name = account.Name;
+                staff.PhoneNumber = account.PhoneNumber;
+                staff.NationalId = account.NationalId;
+                staff.Password = account.Password;
+                staff.PhoneNumber = account.PhoneNumber;
+                await _db.SaveChangesAsync();
+                return Ok(staff);
+            }
+            return BadRequest("Invalid role please ensure you select a valid role :)");
+        }
     }
 }
