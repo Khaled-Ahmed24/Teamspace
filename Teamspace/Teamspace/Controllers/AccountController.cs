@@ -19,7 +19,7 @@ namespace Teamspace.Controllers
         }
 
 
-        [HttpGet("AllByRole")]
+        [HttpGet("[action]")]
         public async Task<IActionResult> GetAllByRole(int role)
         {
             if (role == 0)
@@ -34,7 +34,7 @@ namespace Teamspace.Controllers
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
-        [HttpGet("ByEmail")]
+        [HttpGet("[action]")]
         public async Task<IActionResult> GetByEmail(string email)
         {
             var student = await _db.Students.SingleOrDefaultAsync(s => s.Email == email);
@@ -47,7 +47,7 @@ namespace Teamspace.Controllers
 
             return NotFound("Email not found :(");
         }
-        [HttpPost("Add")]
+        [HttpPost("[action]")]
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
             if (role == 0)
@@ -61,7 +61,7 @@ namespace Teamspace.Controllers
                     NationalId = account.NationalId,
                     Year = account.Year,
                     Password = account.Password,
-                    DepartmentId = account.DepartmentId
+                    //DepartmentId = account.DepartmentId
                 };
                 await _db.Students.AddAsync(student);
                 await _db.SaveChangesAsync();
@@ -85,7 +85,7 @@ namespace Teamspace.Controllers
             return BadRequest("Invalid role please ensure you select a valid role :)");
 
         }
-        [HttpPost("AddByExcel")]
+        [HttpPost("[action]")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
             if (file == null || file.ExcelFile.Length == 0)
@@ -147,7 +147,7 @@ namespace Teamspace.Controllers
                 }
             }
         }
-        [HttpPut("Update")]
+        [HttpPut("[action]")]
         public async Task<IActionResult> Update([FromQuery] int role, [FromForm] Account account)
         {
             if(role == 0)
@@ -161,7 +161,7 @@ namespace Teamspace.Controllers
                 student.NationalId = account.NationalId;
                 student.Year = account.Year;
                 student.Password = account.Password;
-                student.DepartmentId = account.DepartmentId;
+                //student.DepartmentId = account.DepartmentId;
                 student.PhoneNumber = account.PhoneNumber;
                 await _db.SaveChangesAsync();
                 return Ok(student); 
@@ -181,7 +181,7 @@ namespace Teamspace.Controllers
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
-        [HttpDelete("Delete")]
+        [HttpDelete("[action]")]
         public async Task<IActionResult> Delete(int role, string email)
         {
             if(role == 0)
@@ -204,5 +204,11 @@ namespace Teamspace.Controllers
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
+       /* [HttpGet("[action]")]
+        public async Task<IActionResult> GetByDepartment(int departId)
+        {
+            var studets = await _db.Students.Where(s => s.DepartmentId == departId).ToListAsync();
+            return Ok(studets);
+        }*/
     }
 }

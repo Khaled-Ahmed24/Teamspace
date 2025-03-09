@@ -8,7 +8,7 @@
         // image
 
         //foreign key
-        public int StaffEmail { get; set; }
+        public int StaffId { get; set; }
 
         public Staff Staff { get; set; }
     }
