@@ -15,20 +15,20 @@ namespace Teamspace.Configurations
                 HasKey(s => new { s.Department, s.Level });
 
             modelBuilder.Entity<QuestionAns>().
-              HasKey(s => new { s.QuestionId, s.StudentEmail });
+              HasKey(s => new { s.QuestionId, s.StudentId });
 
             modelBuilder.Entity<AssignmentAns>().
-                      HasKey(s => new { s.QuestionId, s.StudentEmail });
+                      HasKey(s => new { s.QuestionId, s.StudentId });
             modelBuilder.Entity<Registeration>().
-                HasKey(s => new { s.StaffEmail, s.SubjectDepartment, s.SubjectLevel });
+                HasKey(s => new { s.StaffId, s.SubjectDepartment, s.SubjectLevel });
             modelBuilder.Entity<Material>().
-                HasKey(s => new { s.StaffEmail, s.SubjectDepartment, s.SubjectLevel });
+                HasKey(s => new { s.StaffId, s.SubjectDepartment, s.SubjectLevel });
             modelBuilder.Entity<Post>().
-                HasKey(s => new { s.StaffEmail, s.SubjectDepartment, s.SubjectLevel });
+                HasKey(s => new { s.StaffId, s.SubjectDepartment, s.SubjectLevel });
             modelBuilder.Entity<Choice>().
                 HasKey(s => new { s.QuestionId, s.choice });
             modelBuilder.Entity<PostComment>().
-                HasKey(s => new { s.PostStaffEmail, s.PostSubjectDepartment, s.PostSubjectLevel, s.Content, s.SentAt });
+                HasKey(s => new { s.PostStaffId, s.PostSubjectDepartment, s.PostSubjectLevel, s.Content, s.SentAt });
             modelBuilder.Entity<NewsComment>().
                 HasKey(s => new { s.NewsId, s.Content, s.SentAt });
         }

@@ -20,7 +20,7 @@
 
         public ICollection<Question> Questions { get; set; }
 
-        public int StaffEmail { get; set; }
+        public int StaffId { get; set; }
 
         public Staff Staff { get; set; }
 

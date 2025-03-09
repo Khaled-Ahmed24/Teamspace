@@ -2,7 +2,7 @@
 {
     public class AssignmentAns
     {
-        public int StudentEmail { get; set; }
+        public int StudentId { get; set; }
         public int QuestionId { get; set; }
 
         public Student Student { get; set; }
