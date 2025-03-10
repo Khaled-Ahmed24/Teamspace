@@ -4,12 +4,12 @@ namespace Teamspace.Models
 {
     public class PostComment
     {
-        public int PostStaffEmail { get; set; }
+        public int PostStaffId { get; set; }
         public string PostSubjectDepartment { get; set; }
         public string PostSubjectLevel { get; set; }
         public string Content { get; set; }
         public DateTime SentAt { get; set; }
-        public string CommenterEmail { get; set; }
+        public int CommenterId { get; set; }
 
         // relationships
         public Post Post { get; set; }
