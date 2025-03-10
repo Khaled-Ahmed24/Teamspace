@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
+using Teamspace.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,6 +8,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<AppDbContext>(
         op => op.UseSqlServer(builder.Configuration.GetConnectionString("MyConnection")));
 
+builder.Services.AddScoped<NewsRepo>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

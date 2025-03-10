@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Teamspace.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTablesandPrepareDbContext : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -84,19 +84,18 @@ namespace Teamspace.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    StaffEmail = table.Column<int>(type: "int", nullable: false),
-                    StaffEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    StaffEmail = table.Column<string>(type: "nvarchar(450)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_News", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_News_Staffs_StaffEmail1",
-                        column: x => x.StaffEmail1,
+                        name: "FK_News_Staffs_StaffEmail",
+                        column: x => x.StaffEmail,
                         principalTable: "Staffs",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Email");
                 });
 
             migrationBuilder.CreateTable(
@@ -374,9 +373,9 @@ namespace Teamspace.Migrations
                 columns: new[] { "SubjectDepartment", "SubjectLevel" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_News_StaffEmail1",
+                name: "IX_News_StaffEmail",
                 table: "News",
-                column: "StaffEmail1");
+                column: "StaffEmail");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Posts_StaffEmail1",

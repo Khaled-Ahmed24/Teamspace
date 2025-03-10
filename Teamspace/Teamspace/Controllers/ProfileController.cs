@@ -47,7 +47,7 @@ namespace Teamspace.Controllers
                 if (student == null)
                     return NotFound("This Profile doesn't exist :(");
 
-                //student.Name = account.Name;
+                student.Name = profile.Name;
                 student.Password = profile.Password;
                 student.PhoneNumber = profile.PhoneNumber;
                 //student.NationalId = account.NationalId;
@@ -65,7 +65,7 @@ namespace Teamspace.Controllers
                 if (staff == null)
                     return NotFound("This Profile doesn't exist :(");
 
-
+                staff.Name = profile.Name;
                 staff.Password = profile.Password;
                 staff.PhoneNumber = profile.PhoneNumber;
                 staff.Gender = profile.Gender;

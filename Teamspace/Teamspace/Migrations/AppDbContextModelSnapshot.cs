@@ -17,7 +17,7 @@ namespace Teamspace.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "8.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -144,15 +144,26 @@ namespace Teamspace.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+<<<<<<< HEAD
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("StaffEmail")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffEmail");
+=======
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("StaffId");
+>>>>>>> e57b0b5b650cf323280314714a5c632bae949613
 
                     b.ToTable("News");
                 });
@@ -467,9 +478,13 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("News")
+<<<<<<< HEAD
+                        .HasForeignKey("StaffEmail");
+=======
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+>>>>>>> e57b0b5b650cf323280314714a5c632bae949613
 
                     b.Navigation("Staff");
                 });
