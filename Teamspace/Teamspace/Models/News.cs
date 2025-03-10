@@ -3,12 +3,12 @@
     public class News
     {
         public int Id { get; set; }
-        public string Content { get; set; }
+        public string? Content { get; set; }
 
-        // image
+        public byte[]? Image { get; set; }
 
         //foreign key
-        public int StaffEmail { get; set; }
+        public string? StaffEmail { get; set; }
 
         public Staff Staff { get; set; }
     }

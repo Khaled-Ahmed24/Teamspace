@@ -17,7 +17,7 @@ namespace Teamspace.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "8.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -158,19 +158,17 @@ namespace Teamspace.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StaffEmail")
-                        .HasColumnType("int");
+                    b.Property<byte[]>("Image")
+                        .HasColumnType("varbinary(max)");
 
-                    b.Property<string>("StaffEmail1")
-                        .IsRequired()
+                    b.Property<string>("StaffEmail")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StaffEmail1");
+                    b.HasIndex("StaffEmail");
 
                     b.ToTable("News");
                 });
@@ -489,9 +487,7 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("News")
-                        .HasForeignKey("StaffEmail1")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("StaffEmail");
 
                     b.Navigation("Staff");
                 });
