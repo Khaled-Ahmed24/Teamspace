@@ -5136,23 +5136,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\c.delivery for lap\\.nuget\\packages\\": {},
+    "C:\\Users\\khale\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+      "projectUniqueName": "D:\\Mastering\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
       "projectName": "Teamspace",
-      "projectPath": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
-      "packagesPath": "C:\\Users\\c.delivery for lap\\.nuget\\packages\\",
-      "outputPath": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\obj\\",
+      "projectPath": "D:\\Mastering\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+      "packagesPath": "C:\\Users\\khale\\.nuget\\packages\\",
+      "outputPath": "D:\\Mastering\\Teamspace\\Teamspace\\Teamspace\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\c.delivery for lap\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\khale\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -5161,9 +5161,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {},
-        "https://packagesource": {},
-        "https://packagesource1": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net8.0": {
@@ -5181,7 +5179,7 @@
         "auditLevel": "low",
         "auditMode": "direct"
       },
-      "SdkAnalysisLevel": "9.0.100"
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net8.0": {
@@ -5229,7 +5227,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   }
