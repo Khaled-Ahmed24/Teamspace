@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Teamspace.Models
 {
@@ -12,10 +13,8 @@ namespace Teamspace.Models
         public int Hours { get; set; }
 
         // relationShips
+        public int CourseId { get; set; }
 
-        public ICollection<Exam> Exams { get; set; }
-        public ICollection<Registeration> Registerations { get; set; }
-        public ICollection<Material> Materials { get; set; }
-        public ICollection<Post> Posts { get; set; }
+        public ICollection<Course> Courses { get; set; }
     }
 }

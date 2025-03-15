@@ -20,18 +20,19 @@ namespace Teamspace.Configurations
             modelBuilder.Entity<AssignmentAns>().
                       HasKey(s => new { s.QuestionId, s.StudentId });
             modelBuilder.Entity<Registeration>().
-                HasKey(s => new { s.StaffId, s.SubjectDepartment, s.SubjectLevel });
+                HasKey(s => new { s.StaffId, s.CourseId});
             modelBuilder.Entity<Material>().
-                HasKey(s => new { s.StaffId, s.SubjectDepartment, s.SubjectLevel });
+                HasKey(s => new { s.StaffId, s.CourseId });
             modelBuilder.Entity<Post>().
-                HasKey(s => new { s.StaffId, s.SubjectDepartment, s.SubjectLevel });
+                HasKey(s => new { s.StaffId, s.CourseId });
             modelBuilder.Entity<Choice>().
                 HasKey(s => new { s.QuestionId, s.choice });
             modelBuilder.Entity<PostComment>().
-                HasKey(s => new { s.PostStaffId, s.PostSubjectDepartment, s.PostSubjectLevel, s.Content, s.SentAt });
+                HasKey(s => new { s.PostStaffId, s.CourseId, s.Content, s.SentAt });
             modelBuilder.Entity<NewsComment>().
                 HasKey(s => new { s.NewsId, s.Content, s.SentAt });
         }
+        public DbSet<Course> Courses { get; set; }
         public DbSet<AssignmentAns> AssignmentAnss { get; set; }
         public DbSet<Choice> Choices { get; set; }
         public DbSet<Department> Departments { get; set; }

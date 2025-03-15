@@ -53,6 +53,38 @@ namespace Teamspace.Migrations
                     b.ToTable("Choices");
                 });
 
+            modelBuilder.Entity("Teamspace.Models.Course", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Semester")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SubjectDepartment")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("SubjectLevel")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+
+                    b.ToTable("Courses");
+                });
+
             modelBuilder.Entity("Teamspace.Models.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -78,6 +110,9 @@ namespace Teamspace.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -94,22 +129,14 @@ namespace Teamspace.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("SubjectDepartment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SubjectLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<byte>("type")
                         .HasColumnType("tinyint");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StaffId");
+                    b.HasIndex("CourseId");
 
-                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+                    b.HasIndex("StaffId");
 
                     b.ToTable("Exams");
                 });
@@ -119,18 +146,15 @@ namespace Teamspace.Migrations
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubjectDepartment")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SubjectLevel")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("StaffId", "SubjectDepartment", "SubjectLevel");
+                    b.HasKey("StaffId", "CourseId");
 
-                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Materials");
                 });
@@ -148,6 +172,7 @@ namespace Teamspace.Migrations
 
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
+
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
@@ -182,11 +207,8 @@ namespace Teamspace.Migrations
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubjectDepartment")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SubjectLevel")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .IsRequired()
@@ -195,9 +217,9 @@ namespace Teamspace.Migrations
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("StaffId", "SubjectDepartment", "SubjectLevel");
+                    b.HasKey("StaffId", "CourseId");
 
-                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Posts");
                 });
@@ -207,11 +229,8 @@ namespace Teamspace.Migrations
                     b.Property<int>("PostStaffId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PostSubjectDepartment")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("PostSubjectLevel")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(450)");
@@ -222,7 +241,12 @@ namespace Teamspace.Migrations
                     b.Property<int>("CommenterId")
                         .HasColumnType("int");
 
-                    b.HasKey("PostStaffId", "PostSubjectDepartment", "PostSubjectLevel", "Content", "SentAt");
+                    b.Property<int>("PostCourseId")
+                        .HasColumnType("int");
+
+                    b.HasKey("PostStaffId", "CourseId", "Content", "SentAt");
+
+                    b.HasIndex("PostStaffId", "PostCourseId");
 
                     b.ToTable("PostComments");
                 });
@@ -283,15 +307,12 @@ namespace Teamspace.Migrations
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubjectDepartment")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("SubjectLevel")
-                        .HasColumnType("nvarchar(450)");
+                    b.HasKey("StaffId", "CourseId");
 
-                    b.HasKey("StaffId", "SubjectDepartment", "SubjectLevel");
-
-                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+                    b.HasIndex("CourseId");
 
                     b.ToTable("Registerations");
                 });
@@ -384,6 +405,9 @@ namespace Teamspace.Migrations
                     b.Property<string>("Level")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Hours")
                         .HasColumnType("int");
 
@@ -426,42 +450,53 @@ namespace Teamspace.Migrations
                     b.Navigation("Question");
                 });
 
-            modelBuilder.Entity("Teamspace.Models.Exam", b =>
+            modelBuilder.Entity("Teamspace.Models.Course", b =>
                 {
-                    b.HasOne("Teamspace.Models.Staff", "Staff")
-                        .WithMany("Exams")
-                        .HasForeignKey("StaffId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Teamspace.Models.Subject", "Subject")
-                        .WithMany("Exams")
+                        .WithMany("Courses")
                         .HasForeignKey("SubjectDepartment", "SubjectLevel")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Staff");
 
                     b.Navigation("Subject");
                 });
 
+            modelBuilder.Entity("Teamspace.Models.Exam", b =>
+                {
+                    b.HasOne("Teamspace.Models.Course", "Course")
+                        .WithMany("Exams")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Teamspace.Models.Staff", "Staff")
+                        .WithMany("Exams")
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("Teamspace.Models.Material", b =>
                 {
+                    b.HasOne("Teamspace.Models.Course", "Course")
+                        .WithMany("Materials")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("Materials")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Teamspace.Models.Subject", "Subject")
-                        .WithMany("Materials")
-                        .HasForeignKey("SubjectDepartment", "SubjectLevel")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Course");
 
                     b.Navigation("Staff");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("Teamspace.Models.News", b =>
@@ -488,28 +523,28 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Post", b =>
                 {
+                    b.HasOne("Teamspace.Models.Course", "Course")
+                        .WithMany("Posts")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("Posts")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Teamspace.Models.Subject", "Subject")
-                        .WithMany("Posts")
-                        .HasForeignKey("SubjectDepartment", "SubjectLevel")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Course");
 
                     b.Navigation("Staff");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("Teamspace.Models.PostComment", b =>
                 {
                     b.HasOne("Teamspace.Models.Post", "Post")
                         .WithMany("PostComments")
-                        .HasForeignKey("PostStaffId", "PostSubjectDepartment", "PostSubjectLevel")
+                        .HasForeignKey("PostStaffId", "PostCourseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -548,21 +583,21 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Registeration", b =>
                 {
+                    b.HasOne("Teamspace.Models.Course", "Course")
+                        .WithMany("Registerations")
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("Registerations")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Teamspace.Models.Subject", "Subject")
-                        .WithMany("Registerations")
-                        .HasForeignKey("SubjectDepartment", "SubjectLevel")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Navigation("Course");
 
                     b.Navigation("Staff");
-
-                    b.Navigation("Subject");
                 });
 
             modelBuilder.Entity("Teamspace.Models.Student", b =>
@@ -574,6 +609,17 @@ namespace Teamspace.Migrations
                         .IsRequired();
 
                     b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Teamspace.Models.Course", b =>
+                {
+                    b.Navigation("Exams");
+
+                    b.Navigation("Materials");
+
+                    b.Navigation("Posts");
+
+                    b.Navigation("Registerations");
                 });
 
             modelBuilder.Entity("Teamspace.Models.Department", b =>
@@ -620,13 +666,7 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Subject", b =>
                 {
-                    b.Navigation("Exams");
-
-                    b.Navigation("Materials");
-
-                    b.Navigation("Posts");
-
-                    b.Navigation("Registerations");
+                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }
