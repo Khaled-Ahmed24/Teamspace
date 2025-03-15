@@ -146,24 +146,14 @@ namespace Teamspace.Migrations
                     b.Property<string>("Content")
                         .HasColumnType("nvarchar(max)");
 
-<<<<<<< HEAD
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("StaffEmail")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("StaffEmail");
-=======
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
                     b.HasIndex("StaffId");
->>>>>>> e57b0b5b650cf323280314714a5c632bae949613
 
                     b.ToTable("News");
                 });
@@ -478,13 +468,9 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("News")
-<<<<<<< HEAD
-                        .HasForeignKey("StaffEmail");
-=======
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
->>>>>>> e57b0b5b650cf323280314714a5c632bae949613
 
                     b.Navigation("Staff");
                 });

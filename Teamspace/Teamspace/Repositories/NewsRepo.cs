@@ -18,7 +18,7 @@ namespace Teamspace.Repositories
             using var stream = new MemoryStream();
             dtoNews.image.CopyTo(stream);
             if (dtoNews == null) return false;
-            News news = new News { Content = dtoNews.Content, StaffEmail = "1", Image = stream.ToArray() };
+            News news = new News { Content = dtoNews.Content/*,StaffEmail = "1"*/, Image = stream.ToArray() };
             _db.News.Add(news);
             _db.SaveChanges();
             return true;
@@ -52,7 +52,7 @@ namespace Teamspace.Repositories
             using var stream = new MemoryStream();
             dtoNews.image.CopyTo(stream);
             news.Content = dtoNews.Content;
-            news.StaffEmail = dtoNews.StaffEmail;
+            //news.StaffEmail = dtoNews.StaffEmail;
             news.Image = stream.ToArray();
             _db.SaveChanges();
             return true;
