@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Teamspace.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class AddTableCourseAndEditRelationships : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -28,7 +28,9 @@ namespace Teamspace.Migrations
                 name: "Staffs",
                 columns: table => new
                 {
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<bool>(type: "bit", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -37,7 +39,7 @@ namespace Teamspace.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Staffs", x => x.Email);
+                    table.PrimaryKey("PK_Staffs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -47,7 +49,8 @@ namespace Teamspace.Migrations
                     Department = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Level = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Hours = table.Column<int>(type: "int", nullable: false)
+                    Hours = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,7 +61,9 @@ namespace Teamspace.Migrations
                 name: "Students",
                 columns: table => new
                 {
-                    Email = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Gender = table.Column<bool>(type: "bit", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
@@ -69,7 +74,7 @@ namespace Teamspace.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Students", x => x.Email);
+                    table.PrimaryKey("PK_Students", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Students_Departments_DepartmentId",
                         column: x => x.DepartmentId,
@@ -86,126 +91,36 @@ namespace Teamspace.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
-                    StaffEmail = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                    StaffId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_News", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_News_Staffs_StaffEmail",
-                        column: x => x.StaffEmail,
+                        name: "FK_News_Staffs_StaffId",
+                        column: x => x.StaffId,
                         principalTable: "Staffs",
-                        principalColumn: "Email");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Exams",
+                name: "Courses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    type = table.Column<byte>(type: "tinyint", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Duration = table.Column<int>(type: "int", nullable: false),
-                    Grade = table.Column<int>(type: "int", nullable: false),
-                    StaffEmail = table.Column<int>(type: "int", nullable: false),
-                    StaffEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubjectLevel = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Exams", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Exams_Staffs_StaffEmail1",
-                        column: x => x.StaffEmail1,
-                        principalTable: "Staffs",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Exams_Subjects_SubjectDepartment_SubjectLevel",
-                        columns: x => new { x.SubjectDepartment, x.SubjectLevel },
-                        principalTable: "Subjects",
-                        principalColumns: new[] { "Department", "Level" },
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Materials",
-                columns: table => new
-                {
-                    StaffEmail = table.Column<int>(type: "int", nullable: false),
-                    SubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Year = table.Column<int>(type: "int", nullable: false),
+                    Semester = table.Column<int>(type: "int", nullable: false),
                     SubjectLevel = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StaffEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    SubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Materials", x => new { x.StaffEmail, x.SubjectDepartment, x.SubjectLevel });
+                    table.PrimaryKey("PK_Courses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Materials_Staffs_StaffEmail1",
-                        column: x => x.StaffEmail1,
-                        principalTable: "Staffs",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Materials_Subjects_SubjectDepartment_SubjectLevel",
-                        columns: x => new { x.SubjectDepartment, x.SubjectLevel },
-                        principalTable: "Subjects",
-                        principalColumns: new[] { "Department", "Level" },
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Posts",
-                columns: table => new
-                {
-                    StaffEmail = table.Column<int>(type: "int", nullable: false),
-                    SubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubjectLevel = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    StaffEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Posts", x => new { x.StaffEmail, x.SubjectDepartment, x.SubjectLevel });
-                    table.ForeignKey(
-                        name: "FK_Posts_Staffs_StaffEmail1",
-                        column: x => x.StaffEmail1,
-                        principalTable: "Staffs",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Posts_Subjects_SubjectDepartment_SubjectLevel",
-                        columns: x => new { x.SubjectDepartment, x.SubjectLevel },
-                        principalTable: "Subjects",
-                        principalColumns: new[] { "Department", "Level" },
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Registerations",
-                columns: table => new
-                {
-                    StaffEmail = table.Column<int>(type: "int", nullable: false),
-                    SubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubjectLevel = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    StaffEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Registerations", x => new { x.StaffEmail, x.SubjectDepartment, x.SubjectLevel });
-                    table.ForeignKey(
-                        name: "FK_Registerations_Staffs_StaffEmail1",
-                        column: x => x.StaffEmail1,
-                        principalTable: "Staffs",
-                        principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Registerations_Subjects_SubjectDepartment_SubjectLevel",
+                        name: "FK_Courses_Subjects_SubjectDepartment_SubjectLevel",
                         columns: x => new { x.SubjectDepartment, x.SubjectLevel },
                         principalTable: "Subjects",
                         principalColumns: new[] { "Department", "Level" },
@@ -219,7 +134,7 @@ namespace Teamspace.Migrations
                     NewsId = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CommenterEmail = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CommenterId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -228,6 +143,112 @@ namespace Teamspace.Migrations
                         name: "FK_NewsComments_News_NewsId",
                         column: x => x.NewsId,
                         principalTable: "News",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Exams",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    type = table.Column<byte>(type: "tinyint", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Duration = table.Column<int>(type: "int", nullable: false),
+                    Grade = table.Column<int>(type: "int", nullable: false),
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Exams", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Exams_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Exams_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Materials",
+                columns: table => new
+                {
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Materials", x => new { x.StaffId, x.CourseId });
+                    table.ForeignKey(
+                        name: "FK_Materials_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Materials_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Posts",
+                columns: table => new
+                {
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Posts", x => new { x.StaffId, x.CourseId });
+                    table.ForeignKey(
+                        name: "FK_Posts_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Posts_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Registerations",
+                columns: table => new
+                {
+                    StaffId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Registerations", x => new { x.StaffId, x.CourseId });
+                    table.ForeignKey(
+                        name: "FK_Registerations_Courses_CourseId",
+                        column: x => x.CourseId,
+                        principalTable: "Courses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Registerations_Staffs_StaffId",
+                        column: x => x.StaffId,
+                        principalTable: "Staffs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -259,21 +280,21 @@ namespace Teamspace.Migrations
                 name: "PostComments",
                 columns: table => new
                 {
-                    PostStaffEmail = table.Column<int>(type: "int", nullable: false),
-                    PostSubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    PostSubjectLevel = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    PostStaffId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SentAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CommenterEmail = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    CommenterId = table.Column<int>(type: "int", nullable: false),
+                    PostCourseId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PostComments", x => new { x.PostStaffEmail, x.PostSubjectDepartment, x.PostSubjectLevel, x.Content, x.SentAt });
+                    table.PrimaryKey("PK_PostComments", x => new { x.PostStaffId, x.CourseId, x.Content, x.SentAt });
                     table.ForeignKey(
-                        name: "FK_PostComments_Posts_PostStaffEmail_PostSubjectDepartment_PostSubjectLevel",
-                        columns: x => new { x.PostStaffEmail, x.PostSubjectDepartment, x.PostSubjectLevel },
+                        name: "FK_PostComments_Posts_PostStaffId_PostCourseId",
+                        columns: x => new { x.PostStaffId, x.PostCourseId },
                         principalTable: "Posts",
-                        principalColumns: new[] { "StaffEmail", "SubjectDepartment", "SubjectLevel" },
+                        principalColumns: new[] { "StaffId", "CourseId" },
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -281,13 +302,12 @@ namespace Teamspace.Migrations
                 name: "AssignmentAnss",
                 columns: table => new
                 {
-                    StudentEmail = table.Column<int>(type: "int", nullable: false),
-                    QuestionId = table.Column<int>(type: "int", nullable: false),
-                    StudentEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    StudentId = table.Column<int>(type: "int", nullable: false),
+                    QuestionId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AssignmentAnss", x => new { x.QuestionId, x.StudentEmail });
+                    table.PrimaryKey("PK_AssignmentAnss", x => new { x.QuestionId, x.StudentId });
                     table.ForeignKey(
                         name: "FK_AssignmentAnss_Questions_QuestionId",
                         column: x => x.QuestionId,
@@ -295,10 +315,10 @@ namespace Teamspace.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_AssignmentAnss_Students_StudentEmail1",
-                        column: x => x.StudentEmail1,
+                        name: "FK_AssignmentAnss_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
-                        principalColumn: "Email",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -325,14 +345,13 @@ namespace Teamspace.Migrations
                 name: "QuestionAnss",
                 columns: table => new
                 {
-                    StudentEmail = table.Column<int>(type: "int", nullable: false),
+                    StudentId = table.Column<int>(type: "int", nullable: false),
                     QuestionId = table.Column<int>(type: "int", nullable: false),
-                    StudentEmail1 = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     StudentAns = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuestionAnss", x => new { x.QuestionId, x.StudentEmail });
+                    table.PrimaryKey("PK_QuestionAnss", x => new { x.QuestionId, x.StudentId });
                     table.ForeignKey(
                         name: "FK_QuestionAnss_Questions_QuestionId",
                         column: x => x.QuestionId,
@@ -340,57 +359,57 @@ namespace Teamspace.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_QuestionAnss_Students_StudentEmail1",
-                        column: x => x.StudentEmail1,
+                        name: "FK_QuestionAnss_Students_StudentId",
+                        column: x => x.StudentId,
                         principalTable: "Students",
-                        principalColumn: "Email",
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_AssignmentAnss_StudentEmail1",
+                name: "IX_AssignmentAnss_StudentId",
                 table: "AssignmentAnss",
-                column: "StudentEmail1");
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Exams_StaffEmail1",
-                table: "Exams",
-                column: "StaffEmail1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Exams_SubjectDepartment_SubjectLevel",
-                table: "Exams",
+                name: "IX_Courses_SubjectDepartment_SubjectLevel",
+                table: "Courses",
                 columns: new[] { "SubjectDepartment", "SubjectLevel" });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Materials_StaffEmail1",
-                table: "Materials",
-                column: "StaffEmail1");
+                name: "IX_Exams_CourseId",
+                table: "Exams",
+                column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Materials_SubjectDepartment_SubjectLevel",
-                table: "Materials",
-                columns: new[] { "SubjectDepartment", "SubjectLevel" });
+                name: "IX_Exams_StaffId",
+                table: "Exams",
+                column: "StaffId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_News_StaffEmail",
+                name: "IX_Materials_CourseId",
+                table: "Materials",
+                column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_News_StaffId",
                 table: "News",
-                column: "StaffEmail");
+                column: "StaffId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Posts_StaffEmail1",
+                name: "IX_PostComments_PostStaffId_PostCourseId",
+                table: "PostComments",
+                columns: new[] { "PostStaffId", "PostCourseId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Posts_CourseId",
                 table: "Posts",
-                column: "StaffEmail1");
+                column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Posts_SubjectDepartment_SubjectLevel",
-                table: "Posts",
-                columns: new[] { "SubjectDepartment", "SubjectLevel" });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_QuestionAnss_StudentEmail1",
+                name: "IX_QuestionAnss_StudentId",
                 table: "QuestionAnss",
-                column: "StudentEmail1");
+                column: "StudentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Questions_ExamId",
@@ -398,14 +417,9 @@ namespace Teamspace.Migrations
                 column: "ExamId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Registerations_StaffEmail1",
+                name: "IX_Registerations_CourseId",
                 table: "Registerations",
-                column: "StaffEmail1");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Registerations_SubjectDepartment_SubjectLevel",
-                table: "Registerations",
-                columns: new[] { "SubjectDepartment", "SubjectLevel" });
+                column: "CourseId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Students_DepartmentId",
@@ -454,6 +468,9 @@ namespace Teamspace.Migrations
 
             migrationBuilder.DropTable(
                 name: "Departments");
+
+            migrationBuilder.DropTable(
+                name: "Courses");
 
             migrationBuilder.DropTable(
                 name: "Staffs");
