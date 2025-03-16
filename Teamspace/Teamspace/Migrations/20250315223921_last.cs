@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Teamspace.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTableCourseAndEditRelationships : Migration
+    public partial class last : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

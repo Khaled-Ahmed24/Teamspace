@@ -12,8 +12,8 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250315190142_AddTable-Course-And-EditRelationships")]
-    partial class AddTableCourseAndEditRelationships
+    [Migration("20250315223921_last")]
+    partial class last
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
