@@ -173,6 +173,9 @@ namespace Teamspace.Migrations
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<string>("StaffEmail")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 

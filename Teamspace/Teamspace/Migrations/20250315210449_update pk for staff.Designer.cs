@@ -12,8 +12,8 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250315190142_AddTable-Course-And-EditRelationships")]
-    partial class AddTableCourseAndEditRelationships
+    [Migration("20250315210449_update pk for staff")]
+    partial class updatepkforstaff
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -175,6 +175,9 @@ namespace Teamspace.Migrations
 
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("StaffEmail")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
