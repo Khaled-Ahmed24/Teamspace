@@ -19,9 +19,11 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> addNews([FromForm] DtoNews dtoNews)
+        public async Task<IActionResult> addNews([FromForm]DtoNews dtoNews)
         {
-            bool ok=_newsRepo.addNews(dtoNews);
+       
+
+            bool ok =_newsRepo.addNews(dtoNews);
             if (ok == false) return BadRequest();
             return Ok();
         }

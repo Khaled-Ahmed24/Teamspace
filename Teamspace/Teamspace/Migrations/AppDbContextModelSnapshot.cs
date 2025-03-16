@@ -173,15 +173,9 @@ namespace Teamspace.Migrations
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
 
-<<<<<<< HEAD
                     b.Property<string>("StaffEmail")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("StaffEmail");
-=======
->>>>>>> 4fd9b6d56408d45a0f65673493397665f77f2e01
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
@@ -512,10 +506,6 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("News")
-<<<<<<< HEAD
-                        .HasForeignKey("StaffEmail")
-=======
->>>>>>> 4fd9b6d56408d45a0f65673493397665f77f2e01
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

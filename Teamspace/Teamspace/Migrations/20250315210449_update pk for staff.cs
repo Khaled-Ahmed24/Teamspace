@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Teamspace.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTableCourseAndEditRelationships : Migration
+    public partial class updatepkforstaff : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -91,6 +91,7 @@ namespace Teamspace.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Image = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    StaffEmail = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StaffId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>

@@ -7,10 +7,9 @@ namespace Teamspace.DTO
         public int Id { get; set; }
         public string Content { get; set; }
 
-        public IFormFile image { get; set; }
+        public IFormFile Image { get; set; }
 
         //foreign key
-        public string StaffEmail { get; set; }
 
     }
 }
