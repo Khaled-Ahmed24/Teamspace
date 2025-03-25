@@ -10,6 +10,8 @@ builder.Services.AddDbContext<AppDbContext>(
         op => op.UseSqlServer(builder.Configuration.GetConnectionString("MyConnection")));
 
 builder.Services.AddScoped<NewsRepo>();
+builder.Services.AddScoped<AccountRepo>();
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
