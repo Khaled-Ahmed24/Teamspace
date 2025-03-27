@@ -16,9 +16,9 @@ namespace Teamspace.Repositories
         public  bool addNews([FromForm] DtoNews dtoNews)
         {
             using var stream = new MemoryStream();
-            dtoNews.image.CopyTo(stream);
+            dtoNews.Image.CopyTo(stream);
             if (dtoNews == null) return false;
-            News news = new News { Content = dtoNews.Content/*,StaffEmail = "1"*/, Image = stream.ToArray() };
+            News news = new News { Content = dtoNews.Content,StaffId = 1, Image = stream.ToArray() };
             _db.News.Add(news);
             _db.SaveChanges();
             return true;
@@ -50,9 +50,8 @@ namespace Teamspace.Repositories
             News news = _db.News.First(s => s.Id == dtoNews.Id);
             if (news == null) return false;
             using var stream = new MemoryStream();
-            dtoNews.image.CopyTo(stream);
+            dtoNews.Image.CopyTo(stream);
             news.Content = dtoNews.Content;
-            //news.StaffEmail = dtoNews.StaffEmail;
             news.Image = stream.ToArray();
             _db.SaveChanges();
             return true;
