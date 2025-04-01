@@ -11,8 +11,8 @@ namespace Teamspace.Configurations
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Subject>().
-                HasKey(s => new { s.Department, s.Level });
+           /* modelBuilder.Entity<Subject>().
+                HasKey(s => new { s.Department, s.Level });*/
 
             modelBuilder.Entity<QuestionAns>().
               HasKey(s => new { s.QuestionId, s.StudentId });
