@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Teamspace.Configurations;
 
@@ -11,9 +12,11 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250316224713_updating post table again")]
+    partial class updatingposttableagain
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -243,8 +246,8 @@ namespace Teamspace.Migrations
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
@@ -252,17 +255,13 @@ namespace Teamspace.Migrations
                     b.Property<int>("CommenterId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("PostCourseId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("PostUploadedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("PostStaffId", "CourseId", "UploadedAt", "SentAt");
+                    b.HasKey("PostStaffId", "CourseId", "Content", "SentAt");
 
                     b.HasIndex("PostStaffId", "PostCourseId", "PostUploadedAt");
 
