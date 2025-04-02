@@ -15,8 +15,7 @@
 
 
         // one - to - many (subject)
-        public string SubjectLevel { get; set; }
-        public string SubjectDepartment { get; set; }
+        public int SubjectId { get; set; }
         public Subject Subject { get; set; }
 
         // many - to - many (staff)

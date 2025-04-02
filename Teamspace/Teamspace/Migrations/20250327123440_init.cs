@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Teamspace.Migrations
 {
     /// <inheritdoc />
-    public partial class updatepkforstaff : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -43,21 +43,6 @@ namespace Teamspace.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Subjects",
-                columns: table => new
-                {
-                    Department = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Level = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Hours = table.Column<int>(type: "int", nullable: false),
-                    CourseId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Subjects", x => new { x.Department, x.Level });
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Students",
                 columns: table => new
                 {
@@ -77,6 +62,28 @@ namespace Teamspace.Migrations
                     table.PrimaryKey("PK_Students", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Students_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Subjects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Hours = table.Column<int>(type: "int", nullable: false),
+                    DepartmentId = table.Column<int>(type: "int", nullable: false),
+                    CourseId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Subjects", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Subjects_Departments_DepartmentId",
                         column: x => x.DepartmentId,
                         principalTable: "Departments",
                         principalColumn: "Id",
@@ -114,17 +121,16 @@ namespace Teamspace.Migrations
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Year = table.Column<int>(type: "int", nullable: false),
                     Semester = table.Column<int>(type: "int", nullable: false),
-                    SubjectLevel = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    SubjectDepartment = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                    SubjectId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Courses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Courses_Subjects_SubjectDepartment_SubjectLevel",
-                        columns: x => new { x.SubjectDepartment, x.SubjectLevel },
+                        name: "FK_Courses_Subjects_SubjectId",
+                        column: x => x.SubjectId,
                         principalTable: "Subjects",
-                        principalColumns: new[] { "Department", "Level" },
+                        principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -160,7 +166,8 @@ namespace Teamspace.Migrations
                     Duration = table.Column<int>(type: "int", nullable: false),
                     Grade = table.Column<int>(type: "int", nullable: false),
                     StaffId = table.Column<int>(type: "int", nullable: false),
-                    CourseId = table.Column<int>(type: "int", nullable: false)
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -177,6 +184,11 @@ namespace Teamspace.Migrations
                         principalTable: "Staffs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Exams_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -185,7 +197,8 @@ namespace Teamspace.Migrations
                 {
                     StaffId = table.Column<int>(type: "int", nullable: false),
                     CourseId = table.Column<int>(type: "int", nullable: false),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -202,6 +215,11 @@ namespace Teamspace.Migrations
                         principalTable: "Staffs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Materials_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -211,7 +229,8 @@ namespace Teamspace.Migrations
                     StaffId = table.Column<int>(type: "int", nullable: false),
                     CourseId = table.Column<int>(type: "int", nullable: false),
                     Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -228,6 +247,11 @@ namespace Teamspace.Migrations
                         principalTable: "Staffs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Posts_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -235,7 +259,8 @@ namespace Teamspace.Migrations
                 columns: table => new
                 {
                     StaffId = table.Column<int>(type: "int", nullable: false),
-                    CourseId = table.Column<int>(type: "int", nullable: false)
+                    CourseId = table.Column<int>(type: "int", nullable: false),
+                    SubjectId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -252,6 +277,11 @@ namespace Teamspace.Migrations
                         principalTable: "Staffs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Registerations_Subjects_SubjectId",
+                        column: x => x.SubjectId,
+                        principalTable: "Subjects",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -320,7 +350,7 @@ namespace Teamspace.Migrations
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateTable(
@@ -364,7 +394,7 @@ namespace Teamspace.Migrations
                         column: x => x.StudentId,
                         principalTable: "Students",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.NoAction);
                 });
 
             migrationBuilder.CreateIndex(
@@ -373,9 +403,9 @@ namespace Teamspace.Migrations
                 column: "StudentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Courses_SubjectDepartment_SubjectLevel",
+                name: "IX_Courses_SubjectId",
                 table: "Courses",
-                columns: new[] { "SubjectDepartment", "SubjectLevel" });
+                column: "SubjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Exams_CourseId",
@@ -388,9 +418,19 @@ namespace Teamspace.Migrations
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Exams_SubjectId",
+                table: "Exams",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Materials_CourseId",
                 table: "Materials",
                 column: "CourseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Materials_SubjectId",
+                table: "Materials",
+                column: "SubjectId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_News_StaffId",
@@ -408,6 +448,11 @@ namespace Teamspace.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Posts_SubjectId",
+                table: "Posts",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_QuestionAnss_StudentId",
                 table: "QuestionAnss",
                 column: "StudentId");
@@ -423,8 +468,18 @@ namespace Teamspace.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Registerations_SubjectId",
+                table: "Registerations",
+                column: "SubjectId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Students_DepartmentId",
                 table: "Students",
+                column: "DepartmentId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subjects_DepartmentId",
+                table: "Subjects",
                 column: "DepartmentId");
         }
 
@@ -468,9 +523,6 @@ namespace Teamspace.Migrations
                 name: "Exams");
 
             migrationBuilder.DropTable(
-                name: "Departments");
-
-            migrationBuilder.DropTable(
                 name: "Courses");
 
             migrationBuilder.DropTable(
@@ -478,6 +530,9 @@ namespace Teamspace.Migrations
 
             migrationBuilder.DropTable(
                 name: "Subjects");
+
+            migrationBuilder.DropTable(
+                name: "Departments");
         }
     }
 }

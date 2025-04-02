@@ -12,8 +12,8 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250315210449_update pk for staff")]
-    partial class updatepkforstaff
+    [Migration("20250402150820_Edit-Subjecttable")]
+    partial class EditSubjecttable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,20 +70,15 @@ namespace Teamspace.Migrations
                     b.Property<int>("Semester")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubjectDepartment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SubjectLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+                    b.HasIndex("SubjectId");
 
                     b.ToTable("Courses");
                 });
@@ -338,6 +333,10 @@ namespace Teamspace.Migrations
                     b.Property<bool>("Gender")
                         .HasColumnType("bit");
 
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -353,6 +352,9 @@ namespace Teamspace.Migrations
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -376,6 +378,10 @@ namespace Teamspace.Migrations
 
                     b.Property<bool>("Gender")
                         .HasColumnType("bit");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -405,13 +411,16 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Subject", b =>
                 {
-                    b.Property<string>("Department")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Property<string>("Level")
-                        .HasColumnType("nvarchar(450)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<int>("Hours")
@@ -421,7 +430,9 @@ namespace Teamspace.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Department", "Level");
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Subjects");
                 });
@@ -460,7 +471,7 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Subject", "Subject")
                         .WithMany("Courses")
-                        .HasForeignKey("SubjectDepartment", "SubjectLevel")
+                        .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -617,6 +628,17 @@ namespace Teamspace.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("Teamspace.Models.Subject", b =>
+                {
+                    b.HasOne("Teamspace.Models.Department", "Department")
+                        .WithMany("Subjects")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("Teamspace.Models.Course", b =>
                 {
                     b.Navigation("Exams");
@@ -631,6 +653,8 @@ namespace Teamspace.Migrations
             modelBuilder.Entity("Teamspace.Models.Department", b =>
                 {
                     b.Navigation("Students");
+
+                    b.Navigation("Subjects");
                 });
 
             modelBuilder.Entity("Teamspace.Models.Exam", b =>

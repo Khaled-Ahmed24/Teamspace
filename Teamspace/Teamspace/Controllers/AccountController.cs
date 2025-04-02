@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Teamspace.Configurations;
 using Teamspace.DTO;
 using Teamspace.Models;
@@ -14,15 +17,21 @@ namespace Teamspace.Controllers
     public class AccountController : ControllerBase
     {
         public AccountRepo _accountRepo;
-        public AccountController(AccountRepo accountRepo)
+        private readonly IConfiguration config;
+
+        public AccountController(AccountRepo accountRepo, IConfiguration config)
         {
             _accountRepo = accountRepo;
+            this.config = config;
         }
 
 
         [HttpGet("[action]")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllByRole(int role)
         {
+            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine(id);
             if (role == 0)
             {
                 var students = await _accountRepo.GetAllStudents();
@@ -40,16 +49,16 @@ namespace Teamspace.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> GetById(int role, int id)
         {
-            if(role == 0)
+            if (role == 0)
             {
-                var student = await _accountRepo.GetById(role, id);
+                var student = await _accountRepo.GetStudentById(id);
                 if (student != null)
                     return Ok(student);
                 return NotFound("Student not found :(");
             }
             else if(role == 1)
             {
-                var staff = await _accountRepo.GetById(role, id);
+                var staff = await _accountRepo.GetStaffById(id);
                 if (staff != null)
                     return Ok(staff);
                 return NotFound("Staff not found :(");
@@ -59,11 +68,13 @@ namespace Teamspace.Controllers
 
 
         [HttpPost("[action]")]
+        
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
-            await _accountRepo.Add(role, account);  
+            string email = await _accountRepo.Add(role, account);  
             await _accountRepo.SaveChanges();
-            return Ok();
+            var data = await _accountRepo.GetByEmail(email);
+            return Created($"/api/Account/AddAccount/{data.Id}", data);
         }
 
 
@@ -91,6 +102,50 @@ namespace Teamspace.Controllers
             await _accountRepo.Delete(role, id);
             await _accountRepo.SaveChanges();
             return Ok();
+        }
+
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Login(LoginUser UserFromRequest)
+        {
+            var user = await _accountRepo.GetByEmail(UserFromRequest.Email);
+            if (user != null)
+            {
+                if (user.Password == UserFromRequest.Password)
+                {
+                    // Claims
+                    List<Claim> UserClaims = new List<Claim>();
+                    UserClaims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                    UserClaims.Add(new Claim(ClaimTypes.Email, user.Email));
+                    UserClaims.Add(new Claim(ClaimTypes.Role, user.Role.ToString()));
+                    UserClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+
+                    // Key
+                    var SignInKey =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SecritKey"]));
+
+                    // Algorithm
+                    SigningCredentials SigningCred =
+                            new SigningCredentials(SignInKey, SecurityAlgorithms.HmacSha256);
+
+                    // Predifined Claims
+                    JwtSecurityToken token = new JwtSecurityToken(
+                        issuer: config["JWT:Issuer"],
+                        audience: config["JWT:Audience"],
+                        expires: DateTime.Now.AddMinutes(30),
+                        claims:UserClaims,
+                        signingCredentials:SigningCred
+                    );
+                    var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    Console.WriteLine(id);
+                    return Ok(new
+                    {
+                        token = new JwtSecurityTokenHandler().WriteToken(token),
+                        expiration = DateTime.Now.AddMinutes(30)
+                    });
+                }
+            }
+            return Unauthorized("Invalid email or password");
         }
     }
 }

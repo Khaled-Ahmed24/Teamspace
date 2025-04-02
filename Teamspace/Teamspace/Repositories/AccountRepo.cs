@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.Data;
 using Teamspace.Configurations;
 using Teamspace.DTO;
 using Teamspace.Models;
@@ -28,22 +29,18 @@ namespace Teamspace.Repositories
             return staffs;
         }
 
-        public async Task<Object> GetById(int role, int id)
+        public async Task<Student> GetStudentById(int id)
         {
-            if(role == 0)
-            {
-                var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
-                return student;
-            }
-            else if(role == 1)
-            {
-                var staff = await _db.Staffs.FirstOrDefaultAsync(s => s.Id == id);
-                return staff;
-            }
-            return null;
+            var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
+            return student;
+        }
+        public async Task<Staff> GetStaffById(int id)
+        {
+            var staff = await _db.Staffs.FirstOrDefaultAsync(s => s.Id == id);
+            return staff;
         }
 
-        public async Task<bool> Add(int role, Account account)
+        public async Task<string> Add(int role, Account account)
         {
             string email = GenerateEmail(account.FirstName, account.LastName, account.NationalId);
             string password = GeneratePassword(account.FirstName, account.NationalId);
@@ -62,7 +59,7 @@ namespace Teamspace.Repositories
                     DepartmentId = account.DepartmentId
                 };
                 await _db.Students.AddAsync(student);
-                return true;
+                return email;
             }
             else if (role == 1)
             {
@@ -76,9 +73,9 @@ namespace Teamspace.Repositories
                     Password = password
                 };
                 await _db.Staffs.AddAsync(staff);
-                return true;
+                return email;
             }
-            return false;
+            return null;
         }
 
 
@@ -204,7 +201,16 @@ namespace Teamspace.Repositories
             return true;
         }
 
-
+        public async Task<dynamic> GetByEmail(string email)
+        {
+            return await _db.Students.
+                Select(s => new {Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student})
+                .Union(
+                      _db.Staffs
+                      .Select(s => new {Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role})
+                ).FirstOrDefaultAsync(u => u.Email == email);
+            
+        }
 
 
         public async Task SaveChanges()
