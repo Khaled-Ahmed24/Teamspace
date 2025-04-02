@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Teamspace.Configurations;
 
@@ -11,9 +12,11 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250402112352_removeRelationsFromSubject")]
+    partial class removeRelationsFromSubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,12 +73,15 @@ namespace Teamspace.Migrations
                     b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
+                    b.Property<int>("SubjectId1")
+                        .HasColumnType("int");
+
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectId");
+                    b.HasIndex("SubjectId1");
 
                     b.ToTable("Courses");
                 });
@@ -456,8 +462,8 @@ namespace Teamspace.Migrations
             modelBuilder.Entity("Teamspace.Models.Course", b =>
                 {
                     b.HasOne("Teamspace.Models.Subject", "Subject")
-                        .WithMany("Courses")
-                        .HasForeignKey("SubjectId")
+                        .WithMany()
+                        .HasForeignKey("SubjectId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -678,11 +684,6 @@ namespace Teamspace.Migrations
                     b.Navigation("AssignmentAnss");
 
                     b.Navigation("QuestionAnss");
-                });
-
-            modelBuilder.Entity("Teamspace.Models.Subject", b =>
-                {
-                    b.Navigation("Courses");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,10 +1,17 @@
 ﻿namespace Teamspace.Models
 {
+    public enum ExamType
+    {
+        Final,
+        Midterm,
+        Practical,
+        Quiz
+    }
     public class Exam
     {
         public int Id { get; set; }
         public string Description { get; set; }
-        public byte type { get; set; }
+        public ExamType type { get; set; }
 
         public DateTime StartDate { get; set; }
 

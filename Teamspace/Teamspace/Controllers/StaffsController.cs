@@ -29,10 +29,11 @@ namespace Teamspace.Controllers
             Registeration registeration = new Registeration();
 
             registeration.CourseId = id;
+            // JWT
+            registeration.StaffId = 1;
             await _context.AddAsync(registeration);
             await _context.SaveChangesAsync();
-            // JWT
-            //registeration.StaffId = ??
+            
             return Ok(registeration);
         }
     }
