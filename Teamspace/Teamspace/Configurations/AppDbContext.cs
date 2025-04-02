@@ -24,11 +24,11 @@ namespace Teamspace.Configurations
             modelBuilder.Entity<Material>().
                 HasKey(s => new { s.StaffId, s.CourseId });
             modelBuilder.Entity<Post>().
-                HasKey(s => new { s.StaffId, s.CourseId });
+                HasKey(s => new { s.StaffId, s.CourseId,s.UploadedAt });
             modelBuilder.Entity<Choice>().
                 HasKey(s => new { s.QuestionId, s.choice });
             modelBuilder.Entity<PostComment>().
-                HasKey(s => new { s.PostStaffId, s.CourseId, s.Content, s.SentAt });
+                HasKey(s => new { s.PostStaffId, s.CourseId,s.UploadedAt, s.SentAt });
             modelBuilder.Entity<NewsComment>().
                 HasKey(s => new { s.NewsId, s.Content, s.SentAt });
         }

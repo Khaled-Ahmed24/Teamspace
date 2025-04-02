@@ -21,8 +21,6 @@ namespace Teamspace.Controllers
         [HttpPost]
         public async Task<IActionResult> addNews([FromForm]DtoNews dtoNews)
         {
-       
-
             bool ok =_newsRepo.addNews(dtoNews);
             if (ok == false) return BadRequest();
             return Ok();
@@ -51,9 +49,7 @@ namespace Teamspace.Controllers
             return NotFound();
         }
 
-
         [HttpPut]
-
         public async Task<IActionResult> UpdateNews([FromForm] DtoNews dtoNews)
         {
             if (dtoNews == null) return BadRequest();

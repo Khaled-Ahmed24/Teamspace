@@ -1,17 +1,12 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace Teamspace.Models
+﻿namespace Teamspace.DTO
 {
-    public class PostComment
+    public class DtoComment
     {
         public int PostStaffId { get; set; }
         public int CourseId { get; set; }
         public DateTime UploadedAt { get; set; }
         public string Content { get; set; }
-        public DateTime SentAt { get; set; }
         public int CommenterId { get; set; }
 
-        // relationships
-        public Post Post { get; set; }
     }
 }
