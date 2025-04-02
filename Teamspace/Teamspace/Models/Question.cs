@@ -5,9 +5,9 @@
         public int Id { get; set; }
         public string Title { get; set; }
 
-        // image
+        public byte[] Image { get; set; }
 
-        // file
+        public byte[] File { get; set; }
 
         public byte Type { get; set; }
 
