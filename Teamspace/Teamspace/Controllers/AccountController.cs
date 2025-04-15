@@ -27,20 +27,23 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        //[Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")] 
         public async Task<IActionResult> GetAllByRole(int role)
         {
-            var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+         
+            var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             Console.WriteLine(id);
             if (role == 0)
             {
                 var students = await _accountRepo.GetAllStudents();
-                return Ok(students);
+                return Ok(new { id, email, roleClaim, students });
             }
             else if (role == 1)
             {
                 var staffs = await _accountRepo.GetAllStaffs();
-                return Ok(staffs);
+                return Ok(new { id, email, roleClaim, staffs });
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }

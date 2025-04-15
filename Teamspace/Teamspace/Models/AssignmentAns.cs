@@ -8,6 +8,6 @@
         public Student Student { get; set; }
         public Question Question { get; set; }
 
-        public byte[] File { get; set; }
+        public byte[]? File { get; set; }
     }
 }

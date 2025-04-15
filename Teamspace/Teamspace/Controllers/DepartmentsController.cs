@@ -28,7 +28,7 @@ namespace Teamspace.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateDepartment([FromForm] DepartmentDTO _reqDepartment)
         {
-            var dep = _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqDepartment.Name);
+            var dep = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqDepartment.Name);
             if (dep != null)
             {
                 return BadRequest("This department already exist");

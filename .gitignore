@@ -72,6 +72,8 @@ StyleCopReport.xml
 bin/
 obj/
 
+# EF Core
+Migrations/
 
 # Files built by Visual Studio
 *_i.c
