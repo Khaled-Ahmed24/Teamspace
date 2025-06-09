@@ -5142,11 +5142,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+      "projectUniqueName": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
       "projectName": "Teamspace",
-      "projectPath": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+      "projectPath": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
       "packagesPath": "C:\\Users\\c.delivery for lap\\.nuget\\packages\\",
-      "outputPath": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\obj\\",
+      "outputPath": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -19,7 +19,7 @@ namespace Teamspace.Repositories
             dtoPost.Image.CopyTo(stream);
             if (dtoPost == null) return false;
             Post Post = new Post {Title=dtoPost.Title ,Content = dtoPost.Content,Image = stream.ToArray(),
-                StaffId = 1,CourseId=2,UploadedAt= DateTime.Now};
+                StaffId = 1,CourseId=1,UploadedAt= DateTime.Now};
             _db.Posts.Add(Post);
             _db.SaveChanges();
             return true;
@@ -30,17 +30,17 @@ namespace Teamspace.Repositories
             return _db.Posts.ToList();
         }
         //updatedate here
-        public Post getPostById(int CourseId,int StaffId)
+        public Post getPostById(int CourseId,int StaffId,DateTime createdAt)
         {
             var post = _db.Posts.FirstOrDefault(n => n.CourseId == CourseId &&
-                n.StaffId == StaffId );
+                n.StaffId == StaffId &&n.UploadedAt==createdAt);
             return post;
         }
        // updatedate here
-       public bool DeletePostById(int CourseId, int StaffId)
+       public bool DeletePostById(int CourseId, int StaffId, DateTime createdAt)
        {
            var Post = _db.Posts.FirstOrDefault(n => n.CourseId == CourseId &&
-                n.StaffId == StaffId );
+                n.StaffId == StaffId && n.UploadedAt == createdAt);
             if (Post != null)
            {
                _db.Posts.Remove(Post);
@@ -52,7 +52,8 @@ namespace Teamspace.Repositories
         //updatedate here
         public bool UpdatePost([FromForm] DtoPost dtoPost)
         {
-            Post post = _db.Posts.First(s => s.CourseId == dtoPost.CourseId && s.StaffId== dtoPost.StaffId);
+            Post post = _db.Posts.First(s => s.CourseId == dtoPost.CourseId && s.StaffId== dtoPost.StaffId
+            &&s.UploadedAt==dtoPost.UploadedAt);
             if (post == null) return false;
             using var stream = new MemoryStream();
             dtoPost.Image.CopyTo(stream);
@@ -60,7 +61,7 @@ namespace Teamspace.Repositories
             post.Title = dtoPost.Title;
             post.UploadedAt = dtoPost.UploadedAt;
             post.StaffId = 1;
-            post.CourseId = 2;
+            post.CourseId = 1;
             post.Image = stream.ToArray();   
             _db.SaveChanges();
             return true;

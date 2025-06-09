@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "vLNYmk0Tf3Q=",
+  "dgSpecHash": "QRcQDkQFYYM=",
   "success": true,
-  "projectFilePath": "F:\\Learn\\level 4\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+  "projectFilePath": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\c.delivery for lap\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\c.delivery for lap\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",

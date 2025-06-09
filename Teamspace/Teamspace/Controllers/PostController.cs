@@ -33,18 +33,18 @@ namespace Teamspace.Controllers
 
         [HttpGet("{CourseId}/{StaffId}")]
 
-        public async Task<IActionResult> getNewsById(int CourseId, int StaffId)
+        public async Task<IActionResult> getNewsById(int CourseId, int StaffId,DateTime createdAt)
         {
-            var Post = _postsRepo.getPostById(CourseId,StaffId);
+            var Post = _postsRepo.getPostById(CourseId,StaffId,createdAt);
             if (Post == null) return NotFound();
             return Ok(Post);
         }
 
         [HttpDelete("{CourseId:int}/{StaffId:int}")]
 
-        public async Task<IActionResult> DeletePostById(int CourseId, int StaffId)
+        public async Task<IActionResult> DeletePostById(int CourseId, int StaffId, DateTime createdAt)
         {
-            bool ok = _postsRepo.DeletePostById(CourseId, StaffId);
+            bool ok = _postsRepo.DeletePostById(CourseId, StaffId, createdAt);
             if (ok == true) return Ok();
             return NotFound();
         }
@@ -53,7 +53,7 @@ namespace Teamspace.Controllers
        [HttpPut]
 
        public async Task<IActionResult> UpdatePost([FromForm] DtoPost dtoPost)
-       {
+        {
            bool ok = _postsRepo.UpdatePost(dtoPost);
            if (ok == true) return Ok();
            return NotFound();
