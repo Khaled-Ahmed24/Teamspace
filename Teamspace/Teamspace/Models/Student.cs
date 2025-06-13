@@ -18,7 +18,7 @@ namespace Teamspace.Models
 
         public string Password { get; set; }
 
-        // image
+        public byte[] Image { get; set; }
 
 
         // relationShips

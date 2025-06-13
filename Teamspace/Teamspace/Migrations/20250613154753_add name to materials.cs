@@ -5,25 +5,25 @@
 namespace Teamspace.Migrations
 {
     /// <inheritdoc />
-    public partial class updatingposttableagain : Migration
+    public partial class addnametomaterials : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<byte[]>(
-                name: "Image",
-                table: "Posts",
-                type: "varbinary(max)",
+            migrationBuilder.AddColumn<string>(
+                name: "Name",
+                table: "Materials",
+                type: "nvarchar(max)",
                 nullable: false,
-                defaultValue: new byte[0]);
+                defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Image",
-                table: "Posts");
+                name: "Name",
+                table: "Materials");
         }
     }
 }

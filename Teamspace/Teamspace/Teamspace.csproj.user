@@ -7,5 +7,6 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+    <ActiveDebugProfile>https</ActiveDebugProfile>
   </PropertyGroup>
 </Project>

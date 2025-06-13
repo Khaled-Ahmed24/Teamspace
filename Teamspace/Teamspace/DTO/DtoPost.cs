@@ -2,14 +2,13 @@
 {
     public class DtoPost
     {
-
         //pk
-        public int StaffId { get; set; }
+        public int Id {  get; set; }
         public int CourseId { get; set; }
         public DateTime UploadedAt { get; set; }
-      //_______________________________________________________
-      
+        //_______________________________________________________
 
+        public int staffId { get; set; }
 
         public string Title { get; set; }
         public string Content { get; set; }

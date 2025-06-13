@@ -12,8 +12,8 @@ using Teamspace.Configurations;
 namespace Teamspace.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250316224353_updating post table")]
-    partial class updatingposttable
+    [Migration("20250612184419_all")]
+    partial class all
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,10 @@ namespace Teamspace.Migrations
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
+
+                    b.Property<byte[]>("File")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.HasKey("QuestionId", "StudentId");
 
@@ -70,20 +74,15 @@ namespace Teamspace.Migrations
                     b.Property<int>("Semester")
                         .HasColumnType("int");
 
-                    b.Property<string>("SubjectDepartment")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("SubjectLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("SubjectId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SubjectDepartment", "SubjectLevel");
+                    b.HasIndex("SubjectId");
 
                     b.ToTable("Courses");
                 });
@@ -210,56 +209,61 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Post", b =>
                 {
-                    b.Property<int>("StaffId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("StaffId", "CourseId", "UploadedAt");
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Teamspace.Models.PostComment", b =>
                 {
-                    b.Property<int>("PostStaffId")
+                    b.Property<int>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseId")
+                    b.Property<int>("Id")
                         .HasColumnType("int");
-
-                    b.Property<string>("Content")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
 
                     b.Property<int>("CommenterId")
                         .HasColumnType("int");
 
-                    b.Property<int>("PostCourseId")
-                        .HasColumnType("int");
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("PostUploadedAt")
+                    b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("PostStaffId", "CourseId", "Content", "SentAt");
-
-                    b.HasIndex("PostStaffId", "PostCourseId", "PostUploadedAt");
+                    b.HasKey("PostId", "Id");
 
                     b.ToTable("PostComments");
                 });
@@ -279,8 +283,16 @@ namespace Teamspace.Migrations
                     b.Property<int>("ExamId")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("File")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<int>("Grade")
                         .HasColumnType("int");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -345,6 +357,10 @@ namespace Teamspace.Migrations
                     b.Property<bool>("Gender")
                         .HasColumnType("bit");
 
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -360,6 +376,9 @@ namespace Teamspace.Migrations
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -383,6 +402,10 @@ namespace Teamspace.Migrations
 
                     b.Property<bool>("Gender")
                         .HasColumnType("bit");
+
+                    b.Property<byte[]>("Image")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -412,13 +435,16 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Subject", b =>
                 {
-                    b.Property<string>("Department")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.Property<string>("Level")
-                        .HasColumnType("nvarchar(450)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DepartmentId")
                         .HasColumnType("int");
 
                     b.Property<int>("Hours")
@@ -428,7 +454,9 @@ namespace Teamspace.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Department", "Level");
+                    b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Subjects");
                 });
@@ -467,7 +495,7 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Subject", "Subject")
                         .WithMany("Courses")
-                        .HasForeignKey("SubjectDepartment", "SubjectLevel")
+                        .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -557,7 +585,7 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Post", "Post")
                         .WithMany("PostComments")
-                        .HasForeignKey("PostStaffId", "PostCourseId", "PostUploadedAt")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -624,6 +652,17 @@ namespace Teamspace.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("Teamspace.Models.Subject", b =>
+                {
+                    b.HasOne("Teamspace.Models.Department", "Department")
+                        .WithMany("Subjects")
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("Teamspace.Models.Course", b =>
                 {
                     b.Navigation("Exams");
@@ -638,6 +677,8 @@ namespace Teamspace.Migrations
             modelBuilder.Entity("Teamspace.Models.Department", b =>
                 {
                     b.Navigation("Students");
+
+                    b.Navigation("Subjects");
                 });
 
             modelBuilder.Entity("Teamspace.Models.Exam", b =>

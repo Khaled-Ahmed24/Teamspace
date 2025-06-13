@@ -1,4 +1,6 @@
-﻿namespace Teamspace.DTO
+﻿using Teamspace.Models;
+
+namespace Teamspace.DTO
 {
     public class Account
     {
@@ -6,6 +8,7 @@
         public string LastName { get; set; }
         public string Name { get; set; }
         public bool Gender { get; set; }
+        public Role Role { get; set; }
 
         public string PhoneNumber { get; set; }
 

@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using Teamspace.DTO;
 using Teamspace.Repositories;
 
@@ -10,7 +12,7 @@ namespace Teamspace.Controllers
     public class PostController : ControllerBase
     {
         public PostRepo _postsRepo;
-      
+
         public PostController(PostRepo postRepo)
         {
             _postsRepo = postRepo;
@@ -19,45 +21,51 @@ namespace Teamspace.Controllers
         [HttpPost]
         public async Task<IActionResult> addPost([FromForm] DtoPost dtoPost)
         {
-
             bool ok = _postsRepo.addPost(dtoPost);
+            Console.WriteLine(ok + "*************\n");
             if (ok == false) return BadRequest();
             return Ok();
         }
-        [HttpGet]
+        [HttpGet("getAllPosts/{p}")]
 
-        public async Task<IActionResult> getAllPosts()
-         {
-             return Ok(_postsRepo.getAllPosts());
-         }
-
-        [HttpGet("{CourseId}/{StaffId}")]
-
-        public async Task<IActionResult> getNewsById(int CourseId, int StaffId,DateTime createdAt)
+        public async Task<IActionResult> getAllPosts(string p)
         {
-            var Post = _postsRepo.getPostById(CourseId,StaffId,createdAt);
+
+            if (string.IsNullOrEmpty(p) || !int.TryParse(p, out int courseId))
+                return BadRequest("Invalid or missing course ID");
+            var Posts = _postsRepo.getAllPosts(courseId);
+            return Ok(Posts);
+        }
+
+        [HttpGet("{id}")]
+
+        public async Task<IActionResult> getNewsById(int id)
+        {
+            var temp = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            Console.WriteLine(temp + "********\n");
+            var Post = _postsRepo.getPostById(id);
             if (Post == null) return NotFound();
             return Ok(Post);
         }
 
-        [HttpDelete("{CourseId:int}/{StaffId:int}")]
+        [HttpDelete("{id}")]
 
-        public async Task<IActionResult> DeletePostById(int CourseId, int StaffId, DateTime createdAt)
+        public async Task<IActionResult> DeletePostById(int id)
         {
-            bool ok = _postsRepo.DeletePostById(CourseId, StaffId, createdAt);
+            bool ok = _postsRepo.DeletePostById(id);
             if (ok == true) return Ok();
             return NotFound();
         }
 
-       
-       [HttpPut]
 
-       public async Task<IActionResult> UpdatePost([FromForm] DtoPost dtoPost)
+        [HttpPut]
+
+        public async Task<IActionResult> UpdatePost([FromForm] DtoPost dtoPost)
         {
-           bool ok = _postsRepo.UpdatePost(dtoPost);
-           if (ok == true) return Ok();
-           return NotFound();
-       }
+            bool ok = _postsRepo.UpdatePost(dtoPost);
+            if (ok == true) return Ok();
+            return NotFound();
+        }
 
         // comment
 
@@ -71,9 +79,9 @@ namespace Teamspace.Controllers
 
         [HttpGet("[action]")]
 
-        public async Task<IActionResult> getAllComments(int CourseId,int StaffId)
+        public async Task<IActionResult> getAllComments(int postId)
         {
-            return Ok(_postsRepo.getAllComments(CourseId, StaffId));
+            return Ok(_postsRepo.getAllComments(postId));
         }
     }
 }

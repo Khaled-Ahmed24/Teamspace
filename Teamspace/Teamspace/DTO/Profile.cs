@@ -7,6 +7,6 @@
         public string PhoneNumber { get; set; }
         public string Password { get; set; }
 
-        // image
+        public IFormFile? Image { get; set; }
     }
 }
