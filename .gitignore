@@ -73,7 +73,7 @@ bin/
 obj/
 
 # EF Core
-Migrations/
+*/Migrations/
 
 # Files built by Visual Studio
 *_i.c
