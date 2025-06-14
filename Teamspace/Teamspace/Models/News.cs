@@ -7,7 +7,6 @@
 
         public byte[]? Image { get; set; }
 
-
         public string? StaffEmail { get; set; }
 
         public int StaffId { get; set; }

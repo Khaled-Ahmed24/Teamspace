@@ -70,7 +70,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPost("[action]")]
-        
+
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
             var ok = await _accountRepo.Add(role, account);  
@@ -135,8 +135,8 @@ namespace Teamspace.Controllers
                         issuer: config["JWT:Issuer"],
                         audience: config["JWT:Audience"],
                         expires: DateTime.Now.AddMinutes(30),
-                        claims:UserClaims,
-                        signingCredentials:SigningCred
+                        claims: UserClaims,
+                        signingCredentials: SigningCred
                     );
                     var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     Console.WriteLine(id);

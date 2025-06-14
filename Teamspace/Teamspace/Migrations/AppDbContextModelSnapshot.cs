@@ -42,25 +42,19 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Choice", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("AddedOn")
-                        .HasColumnType("datetime2");
-
                     b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
                     b.Property<string>("choice")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
-                    b.HasKey("Id");
+                    b.Property<DateTime>("AddedOn")
+                        .HasColumnType("datetime2");
 
-                    b.HasIndex("QuestionId");
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.HasKey("QuestionId", "choice");
 
                     b.ToTable("Choices");
                 });
@@ -173,18 +167,34 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Material", b =>
                 {
-                    b.Property<int>("StaffId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
                     b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<byte[]>("File")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StaffId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("UploadedAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("StaffId", "CourseId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("Materials");
                 });
@@ -237,18 +247,18 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Post", b =>
                 {
-                    b.Property<int>("StaffId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
 
                     b.Property<byte[]>("Image")
                         .IsRequired()
@@ -258,26 +268,28 @@ namespace Teamspace.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("StaffId", "CourseId", "UploadedAt");
+                    b.Property<DateTime>("UploadedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("staffId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("CourseId");
+
+                    b.HasIndex("staffId");
 
                     b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Teamspace.Models.PostComment", b =>
                 {
-                    b.Property<int>("PostStaffId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("CommenterId")
                         .HasColumnType("int");
@@ -286,15 +298,15 @@ namespace Teamspace.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("PostCourseId")
+                    b.Property<int>("PostId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("PostUploadedAt")
+                    b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("PostStaffId", "CourseId", "UploadedAt", "SentAt");
+                    b.HasKey("Id");
 
-                    b.HasIndex("PostStaffId", "PostCourseId", "PostUploadedAt");
+                    b.HasIndex("PostId");
 
                     b.ToTable("PostComments");
                 });
@@ -649,7 +661,7 @@ namespace Teamspace.Migrations
 
                     b.HasOne("Teamspace.Models.Staff", "Staff")
                         .WithMany("Posts")
-                        .HasForeignKey("StaffId")
+                        .HasForeignKey("staffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -662,7 +674,7 @@ namespace Teamspace.Migrations
                 {
                     b.HasOne("Teamspace.Models.Post", "Post")
                         .WithMany("PostComments")
-                        .HasForeignKey("PostStaffId", "PostCourseId", "PostUploadedAt")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
