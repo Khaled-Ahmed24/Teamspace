@@ -14,8 +14,9 @@ builder.Services.AddDbContext<AppDbContext>(
 
 builder.Services.AddScoped<NewsRepo>();
 builder.Services.AddScoped<AccountRepo>();
-
+builder.Services.AddScoped<ProfileRepo>();
 builder.Services.AddScoped<PostRepo>();
+builder.Services.AddScoped<QuestionRepo>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

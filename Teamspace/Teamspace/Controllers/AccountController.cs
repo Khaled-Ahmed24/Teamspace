@@ -27,22 +27,21 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        //[Authorize(Roles = "Admin")] 
+        //[Authorize(Roles = "Student")] 
         public async Task<IActionResult> GetAllByRole(int role)
         {
-         
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
             Console.WriteLine(id);
-            if (role == 0)
+            if (role == 3)
             {
                 var students = await _accountRepo.GetAllStudents();
                 return Ok(new { id, email, roleClaim, students });
             }
-            else if (role == 1)
+            else if(role < 3)
             {
-                var staffs = await _accountRepo.GetAllStaffs();
+                var staffs = await _accountRepo.GetAllStaffs(role);
                 return Ok(new { id, email, roleClaim, staffs });
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
@@ -52,14 +51,14 @@ namespace Teamspace.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> GetById(int role, int id)
         {
-            if (role == 0)
+            if (role == 3)
             {
                 var student = await _accountRepo.GetStudentById(id);
                 if (student != null)
                     return Ok(student);
                 return NotFound("Student not found :(");
             }
-            else if(role == 1)
+            else if(role < 3)
             {
                 var staff = await _accountRepo.GetStaffById(id);
                 if (staff != null)
@@ -74,10 +73,10 @@ namespace Teamspace.Controllers
         
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
-            string email = await _accountRepo.Add(role, account);  
-            await _accountRepo.SaveChanges();
-            var data = await _accountRepo.GetByEmail(email);
-            return Created($"/api/Account/AddAccount/{data.Id}", data);
+            var ok = await _accountRepo.Add(role, account);  
+            if(ok)
+                return Ok();
+            return BadRequest("Failed to add account, please ensure all fields are filled correctly and try again.");
         }
 
 

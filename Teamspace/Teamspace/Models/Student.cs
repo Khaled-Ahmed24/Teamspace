@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Reflection.Metadata.Ecma335;
 
 namespace Teamspace.Models
 {
@@ -30,5 +31,6 @@ namespace Teamspace.Models
         public ICollection<QuestionAns> QuestionAnss { get; set; }
 
         public ICollection<AssignmentAns> AssignmentAnss { get; set; }
+        public ICollection<StudentStatus> StudentStatuses { get; set; }
     }
 }

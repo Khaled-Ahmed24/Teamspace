@@ -17,12 +17,13 @@ namespace Teamspace.Models
         public int DepartmentId { get; set; }
 
         // relationShips
-        public int CourseId { get; set; }
 
-
+        public int? DependentId { get; set; }
+        public Subject Dependent { get; set; }
         public Department Department { get; set; }
 
         public ICollection<Course> Courses { get; set; }
+        public ICollection<StudentStatus> StudentStatuses { get; set; }
 
     }
 }

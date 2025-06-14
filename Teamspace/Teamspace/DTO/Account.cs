@@ -8,7 +8,6 @@ namespace Teamspace.DTO
         public string LastName { get; set; }
         public string Name { get; set; }
         public bool Gender { get; set; }
-        public Role Role { get; set; }
 
         public string PhoneNumber { get; set; }
 
@@ -17,6 +16,7 @@ namespace Teamspace.DTO
         public int Year { get; set; }
 
         // image
+        public IFormFile? Image { get; set; }
         public int DepartmentId { get; set; }
     }
 }

@@ -28,7 +28,12 @@ namespace Teamspace.Controllers
 
         public async Task<IActionResult> getAllPosts()
          {
-             return Ok(_postsRepo.getAllPosts());
+            var requests = Request.Headers;
+            foreach (var header in requests)
+            {
+                Console.WriteLine($"{header.Key}: {header.Value}");
+            }
+            return Ok(_postsRepo.getAllPosts());
          }
 
         [HttpGet("{CourseId}/{StaffId}")]

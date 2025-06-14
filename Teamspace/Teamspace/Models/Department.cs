@@ -10,5 +10,6 @@
         // foreign key
         public ICollection<Student> Students { get; set; }
         public ICollection<Subject> Subjects { get; set; }
+        public ICollection<CourseDepartment> CourseDepartments { get; set; }
     }
 }
