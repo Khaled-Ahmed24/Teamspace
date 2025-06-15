@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,39 +28,52 @@ namespace Teamspace.Controllers
 
         // GET: api/Exams
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Exam>>> GetAllExams()
+        // my all exams
+        public async Task<ActionResult<IEnumerable<Exam>>> GetMyExams()
         {
 
             // هعرض الامتحانات الي في القناه الي اليوزر ده فيها 
             // محتاج اهندلها للطالب وللدكتر وكده لما اخد من خالد ال jwt 
 
             // JWT انهي دكتور الي فاتح
-            int StaffId = 1;
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             List <Exam> MyExams = await _context.Exams.Where(e=> e.StaffId == StaffId).ToListAsync();
             return await _context.Exams.ToListAsync();
         }
 
-        // GET: api/Exams/5
+        [HttpGet]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Exam>> GetExam(int id)
+        // all exams for specific Course
+        public async Task<ActionResult<IEnumerable<Exam>>> GetCourseExams(int id)
         {
-            
-            var exam = await _context.Exams.FindAsync(id);
-            if (exam == null)
+            var course = await _context.Courses.FindAsync(id);
+            if (course == null)
             {
-                return BadRequest("There is no exam with this ID");
+                return BadRequest("There is no course with this ID");
             }
-            // JWT انهي دكتور الي فاتح
-            int StaffId = 1;
-            if (exam.StaffId != StaffId)
-            {
-                return Unauthorized("This Exam is not for you");
-            }
-
-            return exam;
+            List<Exam> MyExams = await _context.Exams.Where(e => e.CourseId == id).ToListAsync();
+            return await _context.Exams.ToListAsync();
         }
 
-        [HttpPost]
+        [HttpGet("{id}")]
+
+        // my all exams for specific Course
+        public async Task<ActionResult<IEnumerable<Exam>>> GetMyCourseExams(int id)// id for Course
+        {
+            var course = await _context.Courses.FindAsync(id);
+            if (course == null)
+            {
+                return BadRequest("There is no course with this ID");
+            }
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+            List<Exam> MyExams = await _context.Exams.Where(e => e.CourseId == id && e.StaffId == StaffId).ToListAsync();
+            return await _context.Exams.ToListAsync();
+
+            
+        }
+
+        [HttpPost("{id}")]
         public async Task<ActionResult<Exam>> PostExam([FromForm] ExamDTO _reqExam)
         {
             Exam exam = new Exam();
@@ -71,9 +85,10 @@ namespace Teamspace.Controllers
             // JWT هو حاليا فاتح انهي مادة
             // ممكن اخليه يختار اسم المادة ويبعتها في الموديل الي بستقبله
             // او الفرونت يعملها من غير م الدكتور يختار
-            exam.CourseId = 2;
+            exam.CourseId = _reqExam.CourseId;
             // JWT انهي دكتور الي فاتح
-            exam.StaffId = 1;
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            exam.StaffId = StaffId;
 
             _context.Exams.Add(exam);
             await _context.SaveChangesAsync();
@@ -94,7 +109,7 @@ namespace Teamspace.Controllers
                 return BadRequest("There is no exam with this ID");
             }
             // JWT انهي دكتور الي فاتح
-            int StaffId = 1;
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             if (exam.StaffId != StaffId)
             {
                 return Unauthorized("This Exam is not for you");
@@ -144,7 +159,7 @@ namespace Teamspace.Controllers
                 return BadRequest("There is no exam with this ID");
             }
             // JWT انهي دكتور الي فاتح
-            int StaffId = 1;
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             if (exam.StaffId != StaffId)
             {
                 return Unauthorized("This Exam is not for you");

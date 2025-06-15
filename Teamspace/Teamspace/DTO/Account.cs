@@ -1,4 +1,6 @@
-﻿namespace Teamspace.DTO
+﻿using Teamspace.Models;
+
+namespace Teamspace.DTO
 {
     public class Account
     {
@@ -14,6 +16,7 @@
         public int Year { get; set; }
 
         // image
+        public IFormFile? Image { get; set; }
         public int DepartmentId { get; set; }
     }
 }

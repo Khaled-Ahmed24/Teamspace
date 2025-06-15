@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using Teamspace.Configurations;
 using Teamspace.DTO;
 using Teamspace.Models;
+using Teamspace.Repositories;
 using Teamspace.SpaghettiModels;
 
 namespace Teamspace.Controllers
@@ -12,263 +16,138 @@ namespace Teamspace.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly AppDbContext _db;
-        public AccountController(AppDbContext db)
+        public AccountRepo _accountRepo;
+        private readonly IConfiguration config;
+
+        public AccountController(AccountRepo accountRepo, IConfiguration config)
         {
-            _db = db;
+            _accountRepo = accountRepo;
+            this.config = config;
         }
 
 
         [HttpGet("[action]")]
+        //[Authorize(Roles = "Admin")] 
         public async Task<IActionResult> GetAllByRole(int role)
         {
-            if (role == 0)
+            var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
+            var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            Console.WriteLine(id);
+            if (role == 3)
             {
-                var students = await _db.Students.ToListAsync();
-                return Ok(students);
+                var students = await _accountRepo.GetAllStudents();
+                return Ok(new { id, email, roleClaim, students });
             }
-            else if (role == 1)
+            else if (role < 3)
             {
-                var staffs = await _db.Staffs.ToListAsync();
-                return Ok(staffs);
+                var staffs = await _accountRepo.GetAllStaffs(role);
+                return Ok(new { id, email, roleClaim, staffs });
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
+
+
         [HttpGet("[action]")]
         public async Task<IActionResult> GetById(int role, int id)
         {
-            if(role == 0)
+            if (role == 3)
             {
-                var student = await _db.Students.SingleOrDefaultAsync(s => s.Id == id);
+                var student = await _accountRepo.GetStudentById(id);
                 if (student != null)
                     return Ok(student);
                 return NotFound("Student not found :(");
             }
-            else if(role == 1)
+            else if (role < 3)
             {
-                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
+                var staff = await _accountRepo.GetStaffById(id);
                 if (staff != null)
                     return Ok(staff);
                 return NotFound("Staff not found :(");
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
         }
+
+
         [HttpPost("[action]")]
+
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
-            // Generate Method to handle email here
-            string domain = "@fci.aun.edu.eg";
-            string email = account.FirstName + "." + account.LastName;
-            string nationalId = account.NationalId;
-            email = email + nationalId[1] + nationalId[2];
-            for (int i = 10; i < 14; i++)
-                email +=  nationalId[i];
-            email += domain;
-
-            // Generate Method to handle password here
-            string password = account.FirstName + nationalId[1] + nationalId[2];
-            for (int i = 10; i < 14; i++)
-                password += nationalId[i];
-
-            if (role == 0)
-            {
-                var student = new Student
-                {
-                    Email = email,
-                    Name = account.Name,
-                    Gender = account.Gender,
-                    PhoneNumber = account.PhoneNumber,
-                    NationalId = account.NationalId,
-                    Year = account.Year,
-                    Password = password,
-                    DepartmentId = account.DepartmentId
-                };
-                await _db.Students.AddAsync(student);
-                await _db.SaveChangesAsync();
-                return Ok(account);
-            }
-            else if(role == 1)
-            {
-                var staff = new Staff
-                {
-                    Email = email,
-                    Name = account.Name,
-                    Gender = account.Gender,
-                    PhoneNumber = account.PhoneNumber,
-                    NationalId = account.NationalId,
-                    Password = password
-                };
-                await _db.Staffs.AddAsync(staff);
-                await _db.SaveChangesAsync();
-                return Ok(account);
-            }
-            return BadRequest("Invalid role please ensure you select a valid role :)");
-
+            var ok = await _accountRepo.Add(role, account);
+            if (ok)
+                return Ok();
+            return BadRequest("Failed to add account, please ensure all fields are filled correctly and try again.");
         }
+
+
         [HttpPost("[action]")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
-            if (file == null || file.ExcelFile.Length == 0)
-            {
-                return BadRequest("File is empty :(");
-            }
-            using (var stream = new MemoryStream())
-            {
-                await file.ExcelFile.CopyToAsync(stream);
-                stream.Position = 0;
-                using (var excel = new ExcelPackage(stream))
-                {
-                    var worksheet = excel.Workbook.Worksheets[0];
-                    int rows = worksheet.Dimension.Rows;
-                    if(file.role == 0)
-                    {
-                        var students = new List<Student>();
-                        for (int i = 2; i <= rows; i++)
-                        {
-                            // Generate Method to handle email here
-                            string domain = "@fci.aun.edu.eg";
-                            string email = worksheet.Cells[i, 1].Text + "." + worksheet.Cells[i, 2].Text;
-                            string nationalId = worksheet.Cells[i, 6].Text;
-                            email = email + nationalId[1] + nationalId[2];
-                            for (int j = 10; j < 14; j++)
-                                email += nationalId[i];
-                            email += domain;
-
-                            // Generate Method to handle password here
-                            string password = worksheet.Cells[i, 1].Text + nationalId[1] + nationalId[2];
-                            for (int j = 10; j < 14; j++)
-                                password += nationalId[i];
-
-                            students.Add( new Student
-                            {
-                                Name = worksheet.Cells[i, 3].Text,
-                                Email = email,
-                                Gender = worksheet.Cells[i, 4].Text == "Female",
-                                PhoneNumber = worksheet.Cells[i, 5].Text,
-                                NationalId = worksheet.Cells[i, 6].Text,
-                                Year = Convert.ToInt32(worksheet.Cells[i, 7].Text),
-                                Password = password,
-                                DepartmentId = Convert.ToInt32(worksheet.Cells[i, 8].Text)
-                            });
-                        }
-                        await _db.Students.AddRangeAsync(students);
-                        await _db.SaveChangesAsync();
-                        return Ok(students);
-                    }
-                    else if(file.role == 1)
-                    {
-                        var staffs = new List<Staff>();
-                        for (int i = 2; i <= rows; i++)
-                        {
-                            // Generate Method to handle email here
-                            string domain = "@fci.aun.edu.eg";
-                            string email = worksheet.Cells[i, 1].Text + "." + worksheet.Cells[i, 2].Text;
-                            string nationalId = worksheet.Cells[i, 6].Text;
-                            email = email + nationalId[1] + nationalId[2];
-                            for (int j = 10; j < 14; j++)
-                                email += nationalId[i];
-                            email += domain;
-
-                            // Generate Method to handle password here
-                            string password = worksheet.Cells[i, 1].Text + nationalId[1] + nationalId[2];
-                            for (int j = 10; j < 14; j++)
-                                password += nationalId[i];
-                            staffs.Add ( new Staff
-                            {
-                                Name = worksheet.Cells[i, 3].Text,
-                                Email = email,
-                                Gender = worksheet.Cells[i, 5].Text == "Female",
-                                PhoneNumber = worksheet.Cells[i, 6].Text,
-                                NationalId = worksheet.Cells[i, 7].Text,
-                                Password = password
-                            });
-                        }
-                        await _db.AddRangeAsync(staffs);
-                        await _db.SaveChangesAsync();
-                        return Ok(staffs);
-                    }
-                    else
-                    {
-                        return BadRequest("Invalid role please ensure you select a valid role :)");
-                    }
-                }
-            }
+            await _accountRepo.AddByExcel(file);
+            await _accountRepo.SaveChanges();
+            return Ok();
         }
+
+
         [HttpPut("[action]")]
         public async Task<IActionResult> Update([FromQuery] int role, [FromQuery] int id, [FromForm] Account account)
         {
-
-            if(role == 0)
-            {
-                var student = await _db.Students.SingleOrDefaultAsync(s => s.Id == id);
-                if (student == null)
-                    return NotFound("Student not found :(");
-
-                // Generate Method to handle email here
-                string domain = "@fci.aun.edu.eg";
-                string email = account.FirstName + "." + account.LastName;
-                string nationalId = account.NationalId;
-                email = email + nationalId[1] + nationalId[2];
-                for (int i = 10; i < 14; i++)
-                    email += nationalId[i];
-                email += domain;
-
-                student.Name = account.Name;
-                student.Email = email;
-                student.PhoneNumber = account.PhoneNumber;
-                student.NationalId = account.NationalId;
-                student.Year = account.Year;
-                student.DepartmentId = account.DepartmentId;
-                await _db.SaveChangesAsync();
-                return Ok(student); 
-            }
-            else if(role == 1)
-            {
-                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
-                if (staff == null)
-                    return NotFound("Staff not found :(");
-
-
-                // Generate Method to handle email here
-                string domain = "@fci.aun.edu.eg";
-                string email = account.FirstName + "." + account.LastName;
-                string nationalId = account.NationalId;
-                email = email + nationalId[1] + nationalId[2];
-                for (int i = 10; i < 14; i++)
-                    email += nationalId[i];
-                email += domain;
-
-                staff.Name = account.Name;
-                staff.PhoneNumber = account.PhoneNumber;
-                staff.NationalId = account.NationalId;
-                staff.PhoneNumber = account.PhoneNumber;
-                await _db.SaveChangesAsync();
-                return Ok(staff);
-            }
-            return BadRequest("Invalid role please ensure you select a valid role :)");
+            await _accountRepo.Update(role, id, account);
+            await _accountRepo.SaveChanges();
+            return Ok();
         }
+
+
         [HttpDelete("[action]")]
         public async Task<IActionResult> Delete(int role, int id)
         {
-            if(role == 0)
+            await _accountRepo.Delete(role, id);
+            await _accountRepo.SaveChanges();
+            return Ok();
+        }
+
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Login(LoginUser UserFromRequest)
+        {
+            var user = await _accountRepo.GetByEmail(UserFromRequest.Email);
+            if (user != null)
             {
-                var student = await _db.Students.SingleOrDefaultAsync(s => s.Id == id);
-                if( student == null)
-                    return NotFound("Student not found :(");
-                _db.Students.Remove(student);
-                await _db.SaveChangesAsync();
-                return Ok(student);
+                if (user.Password == UserFromRequest.Password)
+                {
+                    // Claims
+                    List<Claim> UserClaims = new List<Claim>();
+                    UserClaims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                    UserClaims.Add(new Claim(ClaimTypes.Email, user.Email));
+                    UserClaims.Add(new Claim(ClaimTypes.Role, user.Role.ToString()));
+                    UserClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
+
+                    // Key
+                    var SignInKey =
+                            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["JWT:SecritKey"]));
+
+                    // Algorithm
+                    SigningCredentials SigningCred =
+                            new SigningCredentials(SignInKey, SecurityAlgorithms.HmacSha256);
+
+                    // Predifined Claims
+                    JwtSecurityToken token = new JwtSecurityToken(
+                        issuer: config["JWT:Issuer"],
+                        audience: config["JWT:Audience"],
+                        expires: DateTime.Now.AddMinutes(30),
+                        claims: UserClaims,
+                        signingCredentials: SigningCred
+                    );
+                    var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    Console.WriteLine(id);
+                    return Ok(new
+                    {
+                        token = new JwtSecurityTokenHandler().WriteToken(token),
+                        expiration = DateTime.Now.AddMinutes(30)
+                    });
+                }
             }
-            else if(role == 1)
-            {
-                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
-                if (staff == null)
-                    return NotFound("Staff not found :(");
-                _db.Staffs.Remove(staff);
-                await _db.SaveChangesAsync();
-                return Ok(staff);
-            }
-            return BadRequest("Invalid role please ensure you select a valid role :)");
+            return Unauthorized("Invalid email or password");
         }
     }
 }

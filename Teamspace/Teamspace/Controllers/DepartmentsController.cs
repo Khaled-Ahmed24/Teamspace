@@ -66,7 +66,6 @@ namespace Teamspace.Controllers
         }
 
 
-
         // DELETE: api/Departments/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteDepartment(int id)

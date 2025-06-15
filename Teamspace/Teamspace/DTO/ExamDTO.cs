@@ -13,6 +13,8 @@ namespace Teamspace.DTO
         public int Duration { get; set; }
 
         public int Grade { get; set; }
-        
+
+        public int CourseId { get; set; }
+
     }
 }

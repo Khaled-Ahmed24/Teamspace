@@ -3,6 +3,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Teamspace.Models
 {
+    public enum Role
+    {
+        Admin,
+        Professor,
+        TA,
+        Student
+    }
     public class Staff
     {
         public int Id { get; set; }
@@ -17,7 +24,8 @@ namespace Teamspace.Models
 
         public string Password { get; set; }
 
-        // image
+        public byte[] Image { get; set; }
+        public Role Role { get; set; }
 
 
 
