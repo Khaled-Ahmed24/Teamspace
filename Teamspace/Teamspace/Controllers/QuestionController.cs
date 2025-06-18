@@ -50,6 +50,7 @@ namespace Teamspace.Controllers
                 return Ok("Question updated successfully.");
             return BadRequest("Failed to update question.");
         }
+
         [HttpDelete("[action]")]
         public async Task<IActionResult> Delete([FromQuery] int questionId)
         {

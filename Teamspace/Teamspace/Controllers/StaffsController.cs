@@ -51,9 +51,16 @@ namespace Teamspace.Controllers
             var res = from courses in _context.Courses
                       join statuses in _context.StudentStatuses
                       on courses.SubjectId equals statuses.SubjectId
+                      join subjects in _context.Subjects
+                      on courses.SubjectId equals subjects.Id
                       where statuses.StudentId == id && 
                             statuses.Status == Status.Failed &&
-                            courses.Year <= student.Year
+                            courses.Year <= student.Year /*&&
+                            _context.CourseDepartments
+                            .Any(c => c.CourseId == courses.Id && c.DepartmentId == student.DepartmentId) &&
+                            (subjects.DependentId == null ||
+                            _context.StudentStatuses
+                            .Any(s => s.StudentId == student.Id && s.SubjectId == subjects.DependentId && s.Status == Status.Succeed))*/
                       select new
                       {
                           CourseId = courses.Id

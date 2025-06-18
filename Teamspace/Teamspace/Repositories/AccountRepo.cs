@@ -287,7 +287,7 @@ namespace Teamspace.Repositories
                 });
             }
             await _db.StudentStatuses.AddRangeAsync(statuses);
-            await SaveChanges();
+            await _db.SaveChangesAsync();
             return;
         }
     }

@@ -1,4 +1,5 @@
-﻿using Teamspace.Models;
+﻿using System.Reflection.Metadata.Ecma335;
+using Teamspace.Models;
 
 namespace Teamspace.DTO
 {
@@ -7,6 +8,7 @@ namespace Teamspace.DTO
         public string SubjectName { get; set; }
         public int Year { get; set; }
         public Semester Semester { get; set; }
-        
+
+        public List<int> Departments { get; set; }
     }
 }
