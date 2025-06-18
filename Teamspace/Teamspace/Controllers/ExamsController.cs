@@ -82,6 +82,9 @@ namespace Teamspace.Controllers
             exam.type = _reqExam.type;
             exam.StartDate = _reqExam.StartDate;
             exam.Grade = _reqExam.Grade;
+            exam.IsShuffled = _reqExam.IsShuffled;
+            exam.PassingScore = _reqExam.PassingScore;
+            exam.GradeIsSeen = _reqExam.GradeIsSeen;
             // JWT هو حاليا فاتح انهي مادة
             // ممكن اخليه يختار اسم المادة ويبعتها في الموديل الي بستقبله
             // او الفرونت يعملها من غير م الدكتور يختار

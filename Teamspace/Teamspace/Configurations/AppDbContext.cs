@@ -22,15 +22,16 @@ namespace Teamspace.Configurations
             modelBuilder.Entity<Registeration>().
                 HasKey(s => new { s.StaffId, s.CourseId});
             modelBuilder.Entity<Material>().
-                HasKey(s => new { s.StaffId, s.CourseId });
+                HasKey(s => new {s.Id });
             modelBuilder.Entity<Post>().
-                HasKey(s => new { s.StaffId, s.CourseId });
+                HasKey(s => new { s.Id });
             modelBuilder.Entity<Choice>().
                 HasKey(s => new { s.QuestionId, s.choice });
             modelBuilder.Entity<PostComment>().
-                HasKey(s => new { s.PostStaffId, s.CourseId, s.Content, s.SentAt });
+                HasKey(s => new {  s.Id});
             modelBuilder.Entity<NewsComment>().
                 HasKey(s => new { s.NewsId, s.Content, s.SentAt });
+
         }
         public DbSet<Course> Courses { get; set; }
         public DbSet<AssignmentAns> AssignmentAnss { get; set; }
@@ -49,5 +50,7 @@ namespace Teamspace.Configurations
         public DbSet<Student> Students { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<StudentStatus> StudentStatuses { get; set; }
+
+        public DbSet<CourseDepartment> CourseDepartments { get; set; }
     }
 }

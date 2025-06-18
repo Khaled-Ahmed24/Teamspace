@@ -17,6 +17,6 @@ namespace Teamspace.DTO
 
         // image
         public IFormFile? Image { get; set; }
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
     }
 }

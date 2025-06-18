@@ -7,6 +7,10 @@ namespace Teamspace.DTO
         public string Description { get; set; }
         public ExamType type { get; set; }
 
+        public int IsShuffled { get; set; }
+        public int PassingScore { get; set; }
+        public int GradeIsSeen { get; set; }
+
         public DateTime StartDate { get; set; }
 
         // in minutes

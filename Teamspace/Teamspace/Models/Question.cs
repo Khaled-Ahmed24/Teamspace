@@ -1,15 +1,21 @@
 ﻿namespace Teamspace.Models
 {
+    public enum QuestionType
+    {
+        MCQ,
+        CheckBox,
+        Written
+    }
     public class Question
     {
         public int Id { get; set; }
         public string Title { get; set; }
 
-        // image
+        public byte[]? Image { get; set; }
 
-        // file
+        public byte[]? File { get; set; }
 
-        public byte Type { get; set; }
+        public QuestionType Type { get; set; }
 
         public string CorrectAns { get; set; }
 

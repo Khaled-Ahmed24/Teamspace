@@ -3,8 +3,8 @@
     public enum Status
     {
         Failed,
-        Enrolled,
-        Completed,
+        Pending,
+        Succeed
     }
     public class StudentStatus
     {

@@ -34,6 +34,7 @@ namespace Teamspace.Repositories
         {
             var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
             return student;
+
         }
 
 
@@ -214,8 +215,9 @@ namespace Teamspace.Repositories
             if (role == 3)
             {
                 var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
-                if (student == null)
-                    return false;
+                if (student == null) return false;
+                var stutes = await _db.StudentStatuses.Where(st => st.Id == id).ToListAsync();
+                _db.StudentStatuses.RemoveRange(stutes);
                 _db.Students.Remove(student);
                 return true;
             }
@@ -231,7 +233,7 @@ namespace Teamspace.Repositories
                 return false;
         }
 
-        public async Task<dynamic> GetByEmail(string email)
+        public async Task<dynamic?> GetByEmail(string email)
         {
             return await _db.Students.
                 Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student })
@@ -239,7 +241,6 @@ namespace Teamspace.Repositories
                       _db.Staffs
                       .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role })
                 ).FirstOrDefaultAsync(u => u.Email == email);
-
         }
 
         public async Task SaveChanges()

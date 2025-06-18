@@ -46,7 +46,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDepartment([FromHeader] int id, [FromForm] DepartmentDTO _reqDepartment)
+        public async Task<IActionResult> PutDepartment( int id, [FromForm] DepartmentDTO _reqDepartment)
         {
             var department = await _context.Departments.FindAsync(id);
             if (department == null)

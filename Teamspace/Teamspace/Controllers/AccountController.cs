@@ -27,7 +27,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        //[Authorize(Roles = "Admin")] 
+        //[Authorize(Roles = "Student")] 
         public async Task<IActionResult> GetAllByRole(int role)
         {
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

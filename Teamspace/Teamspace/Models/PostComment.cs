@@ -4,8 +4,8 @@ namespace Teamspace.Models
 {
     public class PostComment
     {
-        public int PostStaffId { get; set; }
-        public int CourseId { get; set; }
+        public int Id { get; set; }
+        public int PostId { get; set; }
         public string Content { get; set; }
         public DateTime SentAt { get; set; }
         public int CommenterId { get; set; }

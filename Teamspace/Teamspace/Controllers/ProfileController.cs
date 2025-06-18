@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
 using Teamspace.DTO;
 using Teamspace.Models;
+using Teamspace.Repositories;
 
 namespace Teamspace.Controllers
 {
@@ -11,67 +12,31 @@ namespace Teamspace.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
-        AppDbContext _db;
-        public ProfileController(AppDbContext db)
+        public ProfileRepo _profileRepo;
+        public ProfileController(ProfileRepo profileRepo)
         {
-            _db = db;
+            _profileRepo = profileRepo;
         }
 
         [HttpGet("[action]")]
         public async Task<IActionResult> GetById(int role, int id)
         {
-            if(role == 0)
-            {
-                var student = await _db.Students.SingleOrDefaultAsync(s => s.Id == id);
-                if(student == null)
-                    return NotFound("This Profile doesn't exist :(");
-
-                return Ok(student);
-            }
-            else if(role == 1)
-            {
-                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
-                if (staff == null)
-                    return NotFound("This Profile doesn't exist :(");
-
-                return Ok(staff);
-            }
-            return BadRequest("Invalid Role please ensure you select a valid role :)");
+            // role, id should be gotten from the token
+            var user = await _profileRepo.GetById(role, id);
+            if (user == null)
+                return NotFound("User not found");
+            return Ok(user);
         }
         [HttpPut("[action]")]
         public async Task<IActionResult> Update([FromQuery] int role, [FromQuery] int id, [FromForm] Profile profile)
         {
-            if (role == 0)
+            bool ok = await _profileRepo.Update(role, id, profile);
+            if (ok)
             {
-                var student = await _db.Students.SingleOrDefaultAsync(s => s.Id == id);
-                if (student == null)
-                    return NotFound("This Profile doesn't exist :(");
-
-                student.Name = profile.Name;
-                student.Password = profile.Password;
-                student.PhoneNumber = profile.PhoneNumber;
-                //student.NationalId = account.NationalId;
-                //student.Email = account.Email;
-                student.Gender = profile.Gender;
-                //student.Year = account.Year;
-                //student.DepartmentId = account.DepartmentId;
-
-                await _db.SaveChangesAsync();
-                return Ok(new { Message = "Profile Updated Successfully :)", student });
+                await _profileRepo.SaveChanges();
+                return Ok("Profile updated successfully :)");
             }
-            else if (role == 1)
-            {
-                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
-                if (staff == null)
-                    return NotFound("This Profile doesn't exist :(");
-
-                staff.Name = profile.Name;
-                staff.Password = profile.Password;
-                staff.PhoneNumber = profile.PhoneNumber;
-                staff.Gender = profile.Gender;
-                await _db.SaveChangesAsync();
-                return Ok(new { Message = "Profile Updated Successfully :)", staff });
-            }
+                
             return BadRequest("Invalid Role please ensure you select a valid role :)");
         }
     }

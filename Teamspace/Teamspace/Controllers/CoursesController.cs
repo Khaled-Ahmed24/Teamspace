@@ -61,7 +61,17 @@ namespace Teamspace.Controllers
             course.Semester = _reqCourse.Semester;
             course.CreatedAt = DateTime.Now;
 
-            _context.Courses.Add(course);
+            await _context.Courses.AddAsync(course);
+            await _context.SaveChangesAsync();
+
+            foreach (var item in _reqCourse.Departments)
+            {
+                CourseDepartment courseDepartment = new CourseDepartment();
+                courseDepartment.DepartmentId = item;
+                courseDepartment.CourseId = course.Id;
+                await _context.CourseDepartments.AddAsync(courseDepartment);
+               
+            }
             await _context.SaveChangesAsync();
 
             // Redirect with 301 Status code to GetDepartments
@@ -91,6 +101,18 @@ namespace Teamspace.Controllers
             _context.Entry(course).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
+            var cur_courseDepartments = await _context.CourseDepartments.Where(c=> c.CourseId == course.Id).ToListAsync();
+            _context.CourseDepartments.RemoveRange(cur_courseDepartments);
+
+            foreach (var item in _reqCourse.Departments)
+            {
+                CourseDepartment courseDepartment = new CourseDepartment();
+                courseDepartment.DepartmentId = item;
+                courseDepartment.CourseId = course.Id;
+                await _context.CourseDepartments.AddAsync(courseDepartment);
+            }
+            await _context.SaveChangesAsync();
+            return NoContent();
             // Redirect with 301 Status code to GetDepartments
             string newUrl = Url.Action("GetCourses", "Courses");
             return RedirectPermanent(newUrl);

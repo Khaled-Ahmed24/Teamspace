@@ -44,6 +44,7 @@ namespace Teamspace.Controllers
             subject.Hours = _reqSubject.Hours;
             subject.Name = _reqSubject.Name;
             subject.DepartmentId = department.Id;
+            subject.DependentId = _reqSubject.DependentId;
             _context.Subjects.Add(subject);
             await _context.SaveChangesAsync();
 

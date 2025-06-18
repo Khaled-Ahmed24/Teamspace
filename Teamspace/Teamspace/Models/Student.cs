@@ -24,7 +24,7 @@ namespace Teamspace.Models
 
         // relationShips
         // foreign key
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         public Department Department { get; set; }
 
@@ -32,6 +32,7 @@ namespace Teamspace.Models
 
         public ICollection<AssignmentAns> AssignmentAnss { get; set; }
 
-        //public ICollection<StudentStatus> StudentStatuses { get; set; }
+        public ICollection<StudentStatus> StudentStatuses { get; set; }
+
     }
 }

@@ -23,5 +23,6 @@
         public ICollection<Registeration> Registerations { get; set; }
         public ICollection<Material> Materials { get; set; }
         public ICollection<Post> Posts { get; set; }
+        public ICollection<CourseDepartment> CourseDepartments { get; set; }
     }
 }
