@@ -4,7 +4,7 @@
     {
         Failed,
         Pending,
-        Succeed,
+        Succeed
     }
     public class StudentStatus
     {

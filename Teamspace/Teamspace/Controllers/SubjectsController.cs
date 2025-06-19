@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
@@ -9,6 +10,8 @@ namespace Teamspace.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
+   // [Authorize(Roles = "Admin")]
+    
     public class SubjectsController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -41,6 +44,7 @@ namespace Teamspace.Controllers
             subject.Hours = _reqSubject.Hours;
             subject.Name = _reqSubject.Name;
             subject.DepartmentId = department.Id;
+            subject.DependentId = _reqSubject.DependentId;
             _context.Subjects.Add(subject);
             await _context.SaveChangesAsync();
 

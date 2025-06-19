@@ -44,7 +44,7 @@ namespace Teamspace.Controllers
         {
             //int StudentId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var student = await _context.Students.FindAsync(id);
-            if(student == null)
+            if (student == null)
             {
                 return NotFound("Student not found.");
             }
@@ -53,23 +53,24 @@ namespace Teamspace.Controllers
                       on courses.SubjectId equals statuses.SubjectId
                       join subjects in _context.Subjects
                       on courses.SubjectId equals subjects.Id
-                      where statuses.StudentId == id && 
+                      where statuses.StudentId == id &&
                             statuses.Status == Status.Failed &&
-                            courses.Year <= student.Year /*&&
-                            _context.CourseDepartments
-                            .Any(c => c.CourseId == courses.Id && c.DepartmentId == student.DepartmentId) &&
-                            (subjects.DependentId == null ||
-                            _context.StudentStatuses
-                            .Any(s => s.StudentId == student.Id && s.SubjectId == subjects.DependentId && s.Status == Status.Succeed))*/
+                            courses.Year <= student.Year &&
+                _context.CourseDepartments
+                .Any(c => c.CourseId == courses.Id && (student.DepartmentId == null ||  c.DepartmentId == student.DepartmentId)) &&
+                (subjects.DependentId == null ||
+                _context.StudentStatuses
+                .Any(s => s.StudentId == student.Id && s.SubjectId == subjects.DependentId && s.Status == Status.Succeed))
                       select new
                       {
                           CourseId = courses.Id
                       };
+
             return Ok(await res.ToListAsync());
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> Register([FromQuery]int studentId, [FromQuery] int courseId)
+        public async Task<IActionResult> Register([FromQuery] int studentId, [FromQuery] int courseId)
         {
             var subjectId = await _context.Courses
                 .Where(c => c.Id == courseId)

@@ -25,8 +25,8 @@ namespace Teamspace.Configurations
                 HasKey(s => new {s.Id });
             modelBuilder.Entity<Post>().
                 HasKey(s => new { s.Id });
-            modelBuilder.Entity<Choice>().
-                HasKey(s => new { s.QuestionId, s.choice });
+            /*modelBuilder.Entity<Choice>().
+                HasKey(s => new { s.QuestionId, s.choice });*/
             modelBuilder.Entity<PostComment>().
                 HasKey(s => new {  s.Id});
             modelBuilder.Entity<NewsComment>().
@@ -50,6 +50,7 @@ namespace Teamspace.Configurations
         public DbSet<Student> Students { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<StudentStatus> StudentStatuses { get; set; }
+
         public DbSet<CourseDepartment> CourseDepartments { get; set; }
     }
 }

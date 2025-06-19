@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
+using Teamspace.DTO;
 using Teamspace.Models;
 
 namespace Teamspace.Repositories
@@ -54,9 +55,38 @@ namespace Teamspace.Repositories
                 }).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> Add(Question question)
+        public async Task<bool> Add(int examId, QuestionDTO question)
         {
-            await _db.Questions.AddAsync(question);
+            var q = new Question
+            {
+                Title = question.Title,
+                Type = question.Type,
+                CorrectAns = question.CorrectAns,
+                Grade = question.Grade,
+                ExamId = examId,
+            };
+            using (var stream = new MemoryStream())
+            {
+                await question.File.CopyToAsync(stream);
+                q.File = stream.ToArray();
+            }
+            using (var stream = new MemoryStream())
+            {
+                await question.Image.CopyToAsync(stream);
+                q.Image = stream.ToArray();
+            }
+            await _db.Questions.AddAsync(q);
+            await Save();
+            foreach (var choice in question.Choices)
+            {
+                await _db.Choices.AddAsync(new Choice
+                {
+                    choice = choice,
+                    QuestionId = q.Id,
+                    AddedOn = DateTime.Now
+                });
+            }
+            await Save();
             return true;
         }
 
@@ -76,6 +106,12 @@ namespace Teamspace.Repositories
             }
             _db.Questions.Remove(question);
             return false;
+        }
+
+        public async Task Save()
+        {
+            await _db.SaveChangesAsync();
+            return;
         }
     }
 }

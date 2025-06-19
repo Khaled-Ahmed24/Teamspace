@@ -23,7 +23,7 @@ namespace Teamspace.Repositories
             var students = await _db.Students.ToListAsync();
             return students;
         }
-        
+
         public async Task<List<Staff>> GetAllStaffs(int role)
         {
             var staffs = await _db.Staffs.Where(s => (int)s.Role == role).ToListAsync();
@@ -74,7 +74,7 @@ namespace Teamspace.Repositories
                 };
 
                 // there is a problem here in image
-                if(image.Length > 0)
+                if (image.Length > 0)
                     student.Image = image;
                 await _db.Students.AddAsync(student);
                 await SaveChanges();
@@ -215,8 +215,9 @@ namespace Teamspace.Repositories
             if (role == 3)
             {
                 var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
-                if (student == null)
-                    return false;
+                if (student == null) return false;
+                var stutes = await _db.StudentStatuses.Where(st => st.Id == id).ToListAsync();
+                _db.StudentStatuses.RemoveRange(stutes);
                 _db.Students.Remove(student);
                 return true;
             }
@@ -235,10 +236,10 @@ namespace Teamspace.Repositories
         public async Task<dynamic?> GetByEmail(string email)
         {
             return await _db.Students.
-                Select(s => new {Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student})
+                Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student })
                 .Union(
                       _db.Staffs
-                      .Select(s => new {Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role})
+                      .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role })
                 ).FirstOrDefaultAsync(u => u.Email == email);
         }
 

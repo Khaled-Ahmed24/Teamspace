@@ -24,7 +24,10 @@ namespace Teamspace.Models
 
         public string Password { get; set; }
 
+
+
         public byte[]? Image { get; set; }
+
         public Role Role { get; set; }
 
 

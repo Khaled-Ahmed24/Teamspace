@@ -21,6 +21,13 @@ namespace Teamspace.Models
         public int? DependentId { get; set; }
         public Subject Dependent { get; set; }
         public Department Department { get; set; }
+       /*
+        public ICollection<Exam> Exams { get; set; }
+        public ICollection<Registeration> Registerations { get; set; }
+        public ICollection<Material> Materials { get; set; }
+        public ICollection<Post> Posts { get; set; }
+       */
+
 
         public ICollection<Course> Courses { get; set; }
         public ICollection<StudentStatus> StudentStatuses { get; set; }

@@ -24,13 +24,15 @@ namespace Teamspace.Models
 
         // relationShips
         // foreign key
-        public int DepartmentId { get; set; }
+        public int? DepartmentId { get; set; }
 
         public Department Department { get; set; }
 
         public ICollection<QuestionAns> QuestionAnss { get; set; }
 
         public ICollection<AssignmentAns> AssignmentAnss { get; set; }
+
         public ICollection<StudentStatus> StudentStatuses { get; set; }
+
     }
 }
