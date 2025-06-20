@@ -17,7 +17,7 @@
 
         public QuestionType Type { get; set; }
 
-        public string CorrectAns { get; set; }
+        public string? CorrectAns { get; set; }
 
         public int Grade { get; set; }
 
