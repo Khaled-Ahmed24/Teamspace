@@ -98,8 +98,9 @@ namespace Teamspace.Controllers
             await _context.SaveChangesAsync();
 
             // Redirect with 301 Status code to GetAllExams
-            string newUrl = Url.Action("GetAllExams", "Exams");
-            return RedirectPermanent(newUrl);
+            //string newUrl = Url.Action("GetAllExams", "Exams");
+            //return RedirectPermanent(newUrl);
+            return Ok(exam);
         }
 
         

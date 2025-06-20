@@ -28,7 +28,7 @@ namespace Teamspace.Controllers
         [HttpGet("[action]")]
         public async Task<IActionResult> GetById([FromQuery] int questionId, [FromQuery] int examId)
         {
-            var question = await _questionRepo.GetById(examId, questionId);
+            var question = await _questionRepo.GetById(questionId);
             if (question != null)
                 return Ok(question);
             return NotFound("Question not found.");
@@ -55,7 +55,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> Update([FromForm] List<Question> req_questions,[FromQuery]int examId)
+        public async Task<IActionResult> Update([FromForm] List<QuestionDTO> req_questions, [FromQuery]int examId)
         {
             var cur_questions = await _questionRepo.GetAll(examId);
 
@@ -63,16 +63,18 @@ namespace Teamspace.Controllers
             {
                 if (req_questions.Find(q=> q.Id == question.Id) == null)
                 {
-                    await _questionRepo.Delete(question.Id);
+                    foreach(var choice in question.Choices)
+                        await _questionRepo.DeleteChoice(question.Id, choice.Id);
+                    await _questionRepo.DeleteQuestion(question.Id);
                 }
             }
 
             List <int> question_Ids = new List<int>();
             foreach (var question in req_questions)
             {
-                if ( await _questionRepo.GetById(examId, question.Id) == null)
+                if ( await _questionRepo.GetById(question.Id) == null)
                 {
-                    //await _questionRepo.Add(question);
+                    await _questionRepo.Add(examId, question);
                     continue;
                 }
 
@@ -92,7 +94,7 @@ namespace Teamspace.Controllers
         [HttpDelete("[action]")]
         public async Task<IActionResult> Delete([FromQuery] int questionId)
         {
-            var result = await _questionRepo.Delete(questionId);
+            var result = await _questionRepo.DeleteQuestion(questionId);
             if (result)
             {
                 await _questionRepo.Save();
