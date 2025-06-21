@@ -338,8 +338,8 @@ namespace Teamspace.Migrations
                     b.Property<byte[]>("File")
                         .HasColumnType("varbinary(max)");
 
-                    b.Property<int>("Grade")
-                        .HasColumnType("int");
+                    b.Property<double>("Grade")
+                        .HasColumnType("float");
 
                     b.Property<byte[]>("Image")
                         .HasColumnType("varbinary(max)");
@@ -366,10 +366,14 @@ namespace Teamspace.Migrations
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Grade")
-                        .HasColumnType("int");
+                    b.Property<double>("Grade")
+                        .HasColumnType("float");
 
                     b.Property<string>("StudentAns")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("reasoning")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -492,8 +496,8 @@ namespace Teamspace.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("Grade")
-                        .HasColumnType("int");
+                    b.Property<double>("Grade")
+                        .HasColumnType("float");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

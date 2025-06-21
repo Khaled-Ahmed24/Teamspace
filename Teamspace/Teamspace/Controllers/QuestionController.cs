@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Teamspace.DTO;
 using Teamspace.Models;
 using Teamspace.Repositories;
 
@@ -51,6 +52,21 @@ namespace Teamspace.Controllers
                 return Ok("Question Added successfully.");
             }
             return BadRequest("Failed to add question.");
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Add1(QuestionDTO req_question)
+        {
+            Question question = new Question();
+            question.Title = req_question.Title;
+            question.ExamId = req_question.ExamId;
+            question.Grade = req_question.Grade;
+            question.CorrectAns = req_question.CorrectAns; 
+            question.Type = req_question.Type;
+
+            var result = await _questionRepo.Add(question);
+            await _questionRepo.Save();
+            return Ok("Question Added successfully.");
         }
 
         [HttpPut("[action]")]

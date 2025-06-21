@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
 using Teamspace.Models;
 using Teamspace.DTO;
+using AIQAAssistant.Services;
 
 namespace Teamspace.Controllers
 {
@@ -16,11 +17,16 @@ namespace Teamspace.Controllers
     public class AnswerController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IAIGradingService _gradingService;
 
-        public AnswerController(AppDbContext context)
+        public AnswerController(AppDbContext context, IAIGradingService gradingService)
         {
             _context = context;
+            _gradingService = gradingService ?? throw new ArgumentNullException(nameof(gradingService));
+        
         }
+
+
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<QuestionAns>>> GetExamAnss(int examId,int studentId)
@@ -67,7 +73,7 @@ namespace Teamspace.Controllers
         }
 
 
-        [HttpPut("{id}")]
+        [HttpPut /*("{id}")*/]
         public async Task<IActionResult> PutQuestionAns(List <QuestionAns> questiosnAns)
         {
             foreach (var questionAns in questiosnAns)
@@ -75,6 +81,15 @@ namespace Teamspace.Controllers
                 var question = await _context.Questions.Where(q => q.Id == questionAns.QuestionId).FirstOrDefaultAsync();
                 if (question.Type == QuestionType.Written)
                 {
+                    string model_answer = question.CorrectAns;
+                    string question_title = question.Title;
+                    string cur_answer = questionAns.StudentAns;
+                    double grad = question.Grade;
+                    int id = question.Id;
+                    var gradingResult = await _gradingService.GradeAnswerAsync(question, questionAns);
+                    questionAns.Grade += gradingResult.Grade;
+                    questionAns.reasoning = gradingResult.Reasoning;
+
                     // ai 
                 }
                 else
@@ -91,12 +106,45 @@ namespace Teamspace.Controllers
 
         }
 
+        [HttpPut /*("{id}")*/]
+        public async Task<IActionResult> Put1(QuestionAnsDTO req_QuestionAnsDTO)
+        {
+            var questiosnAns = await _context.QuestionAnss.Where(q => q.QuestionId == req_QuestionAnsDTO.QuestionId && 
+                                                                q.StudentId == req_QuestionAnsDTO.StudentId).FirstOrDefaultAsync();
+            questiosnAns.StudentAns = req_QuestionAnsDTO.StudentAns;
+
+            var question = await _context.Questions.Where(q => q.Id == req_QuestionAnsDTO.QuestionId).FirstOrDefaultAsync();
+            if (question.Type == QuestionType.Written)
+            {
+                if (_gradingService != null)
+                {
+                    string model_answer = question.CorrectAns;
+                    string question_title = question.Title;
+                    string cur_answer = req_QuestionAnsDTO.StudentAns;
+                    var gradingResult = await _gradingService.GradeAnswerAsync(question, questiosnAns);
+                    questiosnAns.Grade += gradingResult.Grade;
+                    questiosnAns.reasoning = gradingResult.Reasoning;
+                    // ai 
+                }
+            }
+            else
+            {
+                if (req_QuestionAnsDTO.StudentAns == question.CorrectAns)
+                {
+                    questiosnAns.Grade = question.Grade;
+                }
+            }
+            _context.Entry(questiosnAns).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+
+        }
         [HttpPost]
 
         public async Task<IActionResult> EvaluateExam(int examId, int studentId)
         {
             List<QuestionAns> answer = await GetStudentExamAnswers(examId, studentId);
-            int Total_Grade = 0;
+            double Total_Grade = 0;
             foreach (var item in answer)
             {
                 Total_Grade += item.Grade;

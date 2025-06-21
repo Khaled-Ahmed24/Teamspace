@@ -73,7 +73,7 @@ namespace Teamspace.Controllers
             
         }
 
-        [HttpPost("{id}")]
+        [HttpPost/*("{id}")*/]
         public async Task<ActionResult<Exam>> PostExam([FromForm] ExamDTO _reqExam)
         {
             Exam exam = new Exam();
@@ -90,11 +90,13 @@ namespace Teamspace.Controllers
             // او الفرونت يعملها من غير م الدكتور يختار
             exam.CourseId = _reqExam.CourseId;
             // JWT انهي دكتور الي فاتح
-            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int StaffId = 1;//int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             exam.StaffId = StaffId;
 
             _context.Exams.Add(exam);
             await _context.SaveChangesAsync();
+
+            return NoContent();
 
             // Redirect with 301 Status code to GetAllExams
             string newUrl = Url.Action("GetAllExams", "Exams");

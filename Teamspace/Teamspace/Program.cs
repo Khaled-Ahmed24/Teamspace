@@ -1,3 +1,4 @@
+using AIQAAssistant.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +58,10 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddHttpClient<IAIGradingService, AIGradingService>();
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -71,8 +76,8 @@ app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
-app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();
