@@ -30,7 +30,7 @@ namespace Teamspace.Models
 
         public Role Role { get; set; }
 
-
+        public DoctorSchedule DoctorSchedules { get; set; }
 
         // relationShips
         public ICollection<News> News { get; set; }

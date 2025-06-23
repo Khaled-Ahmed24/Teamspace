@@ -97,6 +97,16 @@ namespace Teamspace.Repositories
                 };
                 await _db.Staffs.AddAsync(staff);
                 await SaveChanges();
+
+                var schedule = new DoctorSchedule
+                {
+                    StaffId = staff.Id,
+                    ScheduleData = "{}"
+                };
+                _db.DoctorSchedules.Add(schedule);
+
+
+                await SaveChanges();
                 var data = await GetByEmail(email);
                 return true;
             }
