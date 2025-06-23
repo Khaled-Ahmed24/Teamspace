@@ -52,5 +52,9 @@ namespace Teamspace.Configurations
         public DbSet<StudentStatus> StudentStatuses { get; set; }
 
         public DbSet<CourseDepartment> CourseDepartments { get; set; }
+
+
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+
     }
 }

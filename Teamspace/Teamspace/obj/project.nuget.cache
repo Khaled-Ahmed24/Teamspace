@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "RStomTTe3aQ=",
+  "dgSpecHash": "bXNYFc0rVg8=",
   "success": true,
   "projectFilePath": "F:\\ماتريل رابعة\\Graduation Project 1\\Last V 16-3\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
   "expectedPackageFiles": [
@@ -61,7 +61,9 @@
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\humanizer.core.zh-hant\\2.14.1\\humanizer.core.zh-hant.2.14.1.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\jwt\\8.0.0\\jwt.8.0.0.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.0\\microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
+    "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.aspnetcore.connections.abstractions\\8.0.0\\microsoft.aspnetcore.connections.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.aspnetcore.razor.language\\6.0.24\\microsoft.aspnetcore.razor.language.6.0.24.nupkg.sha512",
+    "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.aspnetcore.signalr.common\\8.0.0\\microsoft.aspnetcore.signalr.common.8.0.0.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\7.0.0\\microsoft.bcl.asyncinterfaces.7.0.0.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.bcl.cryptography\\9.0.1\\microsoft.bcl.cryptography.9.0.1.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.build\\17.8.3\\microsoft.build.17.8.3.nupkg.sha512",
@@ -98,6 +100,7 @@
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.1\\microsoft.extensions.dependencyinjection.8.0.1.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.dependencymodel\\8.0.2\\microsoft.extensions.dependencymodel.8.0.2.nupkg.sha512",
+    "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.features\\8.0.0\\microsoft.extensions.features.8.0.0.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\9.0.1\\microsoft.extensions.fileproviders.abstractions.9.0.1.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\9.0.1\\microsoft.extensions.fileproviders.physical.9.0.1.nupkg.sha512",
     "C:\\Users\\ALAMIIA\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\9.0.1\\microsoft.extensions.filesystemglobbing.9.0.1.nupkg.sha512",

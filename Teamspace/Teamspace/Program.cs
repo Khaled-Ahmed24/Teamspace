@@ -1,10 +1,12 @@
-using AIQAAssistant.Services;
+﻿using AIQAAssistant.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Teamspace.Configurations;
+using Teamspace.Hubs;
 using Teamspace.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -47,7 +49,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
+/*
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -57,10 +59,28 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+*/
+
+//for real-time
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173", "https://localhost:44395") // عدّل حسب الحاجة
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials(); // مهم جدًا لـ SignalR
+    });
+});
 
 builder.Services.AddHttpClient<IAIGradingService, AIGradingService>();
 
+builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
 
+
+// for real-time
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
@@ -78,6 +98,9 @@ app.UseCors("AllowFrontend");
 app.UseAuthorization();
 
 app.MapControllers();
+
+// for real-time
+app.MapHub<ChatHub>("/chathub");
 
 
 app.Run();
