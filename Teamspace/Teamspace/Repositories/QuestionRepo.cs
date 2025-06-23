@@ -78,6 +78,8 @@ namespace Teamspace.Repositories
             }
             await _db.Questions.AddAsync(q);
             await Save();
+            if(question.Type == QuestionType.Written)
+                return true; // No choices to add for written questions
             foreach (var choice in question.Choices)
             {
                 await _db.Choices.AddAsync(new Choice

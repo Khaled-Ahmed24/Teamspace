@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "HaSe6JPPnxw=",
+  "dgSpecHash": "qg0Mf/+Kcgg=",
   "success": true,
   "projectFilePath": "D:\\Mastering\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\khale\\.nuget\\packages\\azure.core\\1.38.0\\azure.core.1.38.0.nupkg.sha512",
     "C:\\Users\\khale\\.nuget\\packages\\azure.identity\\1.11.4\\azure.identity.1.11.4.nupkg.sha512",
+    "C:\\Users\\khale\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\khale\\.nuget\\packages\\epplus\\7.6.0\\epplus.7.6.0.nupkg.sha512",
     "C:\\Users\\khale\\.nuget\\packages\\epplus.interfaces\\7.5.0\\epplus.interfaces.7.5.0.nupkg.sha512",
     "C:\\Users\\khale\\.nuget\\packages\\epplus.system.drawing\\7.5.0\\epplus.system.drawing.7.5.0.nupkg.sha512",

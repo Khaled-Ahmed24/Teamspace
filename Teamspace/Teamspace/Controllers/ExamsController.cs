@@ -41,10 +41,9 @@ namespace Teamspace.Controllers
             return await _context.Exams.ToListAsync();
         }
 
-        [HttpGet]
         [HttpGet("{id}")]
         // all exams for specific Course
-        public async Task<ActionResult<IEnumerable<Exam>>> GetCourseExams(int id)
+        public async Task<ActionResult<IEnumerable<ExamDTO>>> GetCourseExams(int id)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
@@ -52,7 +51,24 @@ namespace Teamspace.Controllers
                 return BadRequest("There is no course with this ID");
             }
             List<Exam> MyExams = await _context.Exams.Where(e => e.CourseId == id).ToListAsync();
-            return await _context.Exams.ToListAsync();
+            List<ExamDTO> TargetExams = new List<ExamDTO>();
+            foreach (var exam in MyExams)
+            {
+                TargetExams.Add(new ExamDTO
+                {
+                    Id = exam.Id,
+                    Description = exam.Description,
+                    type = exam.type,
+                    IsShuffled = exam.IsShuffled,
+                    PassingScore = exam.PassingScore,
+                    GradeIsSeen = exam.GradeIsSeen,
+                    StartDate = exam.StartDate,
+                    Duration = exam.Duration,
+                    Grade = exam.Grade,
+                    CourseId = exam.CourseId
+                });
+            }
+            return TargetExams;
         }
 
         [HttpGet("{id}")]

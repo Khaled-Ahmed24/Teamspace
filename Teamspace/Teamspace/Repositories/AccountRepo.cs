@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Security.Cryptography;
 using Teamspace.Configurations;
 using Teamspace.DTO;
+using Teamspace.Migrations;
 using Teamspace.Models;
 using Teamspace.SpaghettiModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Teamspace.Repositories
 {
@@ -51,13 +55,8 @@ namespace Teamspace.Repositories
         {
             string email = GenerateEmail(account.FirstName, account.LastName, account.NationalId);
             string password = GeneratePassword(8);
-            byte[] image;
-
-            using (var memoryStream = new MemoryStream())
-            {
-                await account.Image.CopyToAsync(memoryStream);
-                image = memoryStream.ToArray();
-            }
+            Console.WriteLine(password);
+            //password = BCrypt.Net.BCrypt.HashPassword(password);
 
             if (role == 3)
             {
@@ -73,12 +72,19 @@ namespace Teamspace.Repositories
                     DepartmentId = account.DepartmentId,
                 };
 
-                // there is a problem here in image
-                if (image.Length > 0)
-                    student.Image = image;
+                using (var memoryStream = new MemoryStream())
+                {
+                    if (account.Image != null && account.Image.Length > 0)
+                    {
+                        await account.Image.CopyToAsync(memoryStream);
+                        student.Image = memoryStream.ToArray();
+                    }
+                }
                 await _db.Students.AddAsync(student);
                 await SaveChanges();
                 var data = await GetByEmail(email);
+                if (data == null)
+                    return false;
                 InitializeStudentSubjects(data.Id);
                 return true;
             }
@@ -93,81 +99,94 @@ namespace Teamspace.Repositories
                     NationalId = account.NationalId,
                     Password = password,
                     Role = (Role)role,
-                    Image = image
                 };
+                using (var memoryStream = new MemoryStream())
+                {
+                    if (account.Image != null && account.Image.Length > 0)
+                    {
+                        await account.Image.CopyToAsync(memoryStream);
+                        staff.Image = memoryStream.ToArray();
+                    }
+                }
                 await _db.Staffs.AddAsync(staff);
                 await SaveChanges();
                 var data = await GetByEmail(email);
+                if (data == null)
+                    return false;
                 return true;
             }
             return false;
         }
 
 
-        public async Task<bool> AddByExcel(Excel file)
+        public async Task<List<ExcelErrorDTO>> AddByExcel(Excel file)
         {
+            var Errors = new List<ExcelErrorDTO>();
             if (file == null || file.ExcelFile.Length == 0)
             {
-                return false;
+                var RowErrors = new List<string>();
+                RowErrors.Add(
+                    "File is empty, Please upload a valid Excel file."
+                );
+                Errors.Add(new ExcelErrorDTO { Row = 0, Errors = RowErrors });
+                return Errors;
             }
+
             using (var stream = new MemoryStream())
             {
                 await file.ExcelFile.CopyToAsync(stream);
-                stream.Position = 0;
                 using (var excel = new ExcelPackage(stream))
                 {
                     var worksheet = excel.Workbook.Worksheets[0];
                     int rows = worksheet.Dimension.Rows;
-                    if (file.role == 3)
+                    var students = new List<Student>();
+                    var staffs = new List<Staff>();
+                    for (int i = 2; i <= rows; i++)
                     {
-                        var students = new List<Student>();
-                        for (int i = 2; i <= rows; i++)
-                        {
-                            string email = GenerateEmail(worksheet.Cells[i, 1].Text, worksheet.Cells[i, 2].Text, worksheet.Cells[i, 6].Text);
-                            string password = GeneratePassword(8);
+                        if (IsRowEmpty(worksheet, i, 9)) continue;
 
-                            students.Add(new Student
-                            {
-                                Name = worksheet.Cells[i, 3].Text,
-                                Email = email,
-                                Gender = worksheet.Cells[i, 4].Text == "Female",
-                                PhoneNumber = worksheet.Cells[i, 5].Text,
-                                NationalId = worksheet.Cells[i, 6].Text,
-                                Year = Convert.ToInt32(worksheet.Cells[i, 7].Text),
-                                Password = password,
-                                DepartmentId = Convert.ToInt32(worksheet.Cells[i, 8].Text)
-                            });
-                        }
-                        await _db.Students.AddRangeAsync(students);
-                        return true;
-                    }
-                    else if (file.role < 3)
-                    {
-                        var staffs = new List<Staff>();
-                        for (int i = 2; i <= rows; i++)
-                        {
-                            string email = GenerateEmail(worksheet.Cells[i, 1].Text, worksheet.Cells[i, 2].Text, worksheet.Cells[i, 6].Text);
-                            string password = GeneratePassword(8);
+                        var account = new Account{
+                            FirstName = worksheet.Cells[i, 1].Text.Trim(),
+                            LastName = worksheet.Cells[i, 2].Text.Trim(),
+                            Name = worksheet.Cells[i, 3].Text.Trim(),
+                            Gender = worksheet.Cells[i, 4].Text.Trim().Equals("Female", StringComparison.OrdinalIgnoreCase),
+                            PhoneNumber = worksheet.Cells[i, 5].Text.Trim(),
+                            NationalId = worksheet.Cells[i, 6].Text.Trim(),
+                        };
+                        var year = worksheet.Cells[i, 7].Text.Trim();
+                        if (int.TryParse(year, out int output))
+                            account.Year = output;
+                        var deptName = worksheet.Cells[i, 8].Text.Trim();
+                        var dept = await _db.Departments.Where(d => d.Name == deptName)
+                            .FirstOrDefaultAsync();
+                        if(dept != null) account.DepartmentId = dept.Id;
 
-                            staffs.Add(new Staff
+                        var validationContext = new ValidationContext(account, null, null);
+                        var validationResults = new List<ValidationResult>();
+                        bool isValid = Validator.TryValidateObject(account, validationContext, validationResults, true);
+                        if (!isValid)
+                        {
+                            var rowErrors = new ExcelErrorDTO
                             {
-                                Name = worksheet.Cells[i, 3].Text,
-                                Email = email,
-                                Gender = worksheet.Cells[i, 5].Text == "Female",
-                                PhoneNumber = worksheet.Cells[i, 6].Text,
-                                NationalId = worksheet.Cells[i, 7].Text,
-                                Password = password,
-                                Role = (Role)Convert.ToInt32(worksheet.Cells[i, 8].Text)
-                            });
+                                Row = i,
+                                Errors = validationResults.Select(r => r.ErrorMessage).ToList()
+                            };
+                            Errors.Add(rowErrors);
+                            continue;
                         }
-                        await _db.AddRangeAsync(staffs);
-                        return true;
+
+                        var input = worksheet.Cells[i, 9].Text.Trim();
+                        if (Enum.TryParse<Role>(input, true, out Role role))
+                        {
+                            
+                        }
+                        else
+                        {
+                            
+                        }
+
                     }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                }            
             }
         }
 
@@ -290,6 +309,15 @@ namespace Teamspace.Repositories
             await _db.StudentStatuses.AddRangeAsync(statuses);
             await _db.SaveChangesAsync();
             return;
+        }
+
+
+        public bool IsRowEmpty(ExcelWorksheet worksheet, int row, int maxCols)
+        {
+            for (int i = 1; i <= maxCols; i++)
+                if (!string.IsNullOrEmpty(worksheet.Cells[row, i].Text)) return false;
+
+            return true;
         }
     }
 }

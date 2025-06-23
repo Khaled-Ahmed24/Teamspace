@@ -68,27 +68,29 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutQuestionAns(List <QuestionAns> questiosnAns)
+        public async Task<IActionResult> PutQuestionAns(List <QuestionAnsDTO> questiosnAns)
         {
             foreach (var questionAns in questiosnAns)
             {
                 var question = await _context.Questions.Where(q => q.Id == questionAns.QuestionId).FirstOrDefaultAsync();
+                var ans = await _context.QuestionAnss.Where(q => q.QuestionId == questionAns.QuestionId
+                                                            && q.StudentId == questionAns.StudentId).FirstOrDefaultAsync();
                 if (question.Type == QuestionType.Written)
                 {
                     // ai 
                 }
                 else
                 {
+                    ans.StudentAns = questionAns.StudentAns;
                     if (questionAns.StudentAns == question.CorrectAns)
                     {
-                        questionAns.Grade = question.Grade;
+                        ans.Grade = question.Grade;
                     }
                 }
-                _context.Entry(questionAns).State = EntityState.Modified;
+                _context.Entry(ans).State = EntityState.Modified;
             }
             await _context.SaveChangesAsync();
             return NoContent();
-
         }
 
         [HttpPost]

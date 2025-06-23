@@ -9,11 +9,13 @@ using Teamspace.DTO;
 using Teamspace.Models;
 using Teamspace.Repositories;
 using Teamspace.SpaghettiModels;
+using BCrypt.Net;
 
 namespace Teamspace.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    //[Authorize]
     public class AccountController : ControllerBase
     {
         public AccountRepo _accountRepo;
@@ -27,7 +29,6 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        //[Authorize(Roles = "Student")] 
         public async Task<IActionResult> GetAllByRole(int role)
         {
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -76,7 +77,7 @@ namespace Teamspace.Controllers
             var ok = await _accountRepo.Add(role, account);  
             if(ok)
                 return Ok();
-            return BadRequest("Failed to add account, please ensure all fields are filled correctly and try again.");
+            return BadRequest("There is a problem occured when adding this account ensure you selected a valid role and try again ^_^");
         }
 
 
@@ -113,7 +114,8 @@ namespace Teamspace.Controllers
             var user = await _accountRepo.GetByEmail(UserFromRequest.Email);
             if (user != null)
             {
-                if (user.Password == UserFromRequest.Password)
+                /*BCrypt.Net.BCrypt.Verify(UserFromRequest.Password, user.Password)*/
+                if (UserFromRequest.Password == user.Password)
                 {
                     // Claims
                     List<Claim> UserClaims = new List<Claim>();
