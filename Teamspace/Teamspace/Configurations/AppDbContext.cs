@@ -51,6 +51,8 @@ namespace Teamspace.Configurations
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<StudentStatus> StudentStatuses { get; set; }
 
+        public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
+
         public DbSet<CourseDepartment> CourseDepartments { get; set; }
     }
 }

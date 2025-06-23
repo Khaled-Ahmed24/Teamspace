@@ -81,13 +81,13 @@ namespace Teamspace.Controllers
         }
 
 
-        [HttpPost("[action]")]
+       /* [HttpPost("[action]")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
             await _accountRepo.AddByExcel(file);
             await _accountRepo.SaveChanges();
             return Ok();
-        }
+        }*/
 
 
         [HttpPut("[action]")]

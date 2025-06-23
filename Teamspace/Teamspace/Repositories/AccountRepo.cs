@@ -110,6 +110,16 @@ namespace Teamspace.Repositories
                 }
                 await _db.Staffs.AddAsync(staff);
                 await SaveChanges();
+
+                var schedule = new DoctorSchedule
+                {
+                    StaffId = staff.Id,
+                    ScheduleData = "{}"
+                };
+                _db.DoctorSchedules.Add(schedule);
+
+
+                await SaveChanges();
                 var data = await GetByEmail(email);
                 if (data == null)
                     return false;
@@ -119,7 +129,7 @@ namespace Teamspace.Repositories
         }
 
 
-        public async Task<List<ExcelErrorDTO>> AddByExcel(Excel file)
+        /*public async Task<List<ExcelErrorDTO>> AddByExcel(Excel file)
         {
             var Errors = new List<ExcelErrorDTO>();
             if (file == null || file.ExcelFile.Length == 0)
@@ -188,7 +198,7 @@ namespace Teamspace.Repositories
                     }
                 }            
             }
-        }
+        }*/
 
 
         public async Task<bool> Update(int role, int id, Account account)
