@@ -29,6 +29,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllByRole(int role)
         {
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -50,6 +51,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int role, int id)
         {
             if (role == 3)
@@ -71,40 +73,45 @@ namespace Teamspace.Controllers
 
 
         [HttpPost("[action]")]
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
             var ok = await _accountRepo.Add(role, account);  
-            if(ok)
-                return Ok();
-            return BadRequest("There is a problem occured when adding this account ensure you selected a valid role and try again ^_^");
+            if(ok == "Ok")
+                return Ok("Account added successfully");
+            return BadRequest(ok);
         }
 
 
-       /* [HttpPost("[action]")]
+        [HttpPost("[action]")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
-            await _accountRepo.AddByExcel(file);
-            await _accountRepo.SaveChanges();
-            return Ok();
-        }*/
+            var errors = await _accountRepo.AddByExcel(file);
+            if (errors == null || errors.Count == 0) return Ok("Data added successfully");
+            else return BadRequest(errors);
+        }
 
 
         [HttpPut("[action]")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromQuery] int role, [FromQuery] int id, [FromForm] Account account)
         {
-            await _accountRepo.Update(role, id, account);
-            await _accountRepo.SaveChanges();
-            return Ok();
+            var ok = await _accountRepo.Update(role, id, account);
+            if(ok == "Ok")
+                return Ok("Account updated successfully");
+            else return BadRequest(ok);
         }
 
 
         [HttpDelete("[action]")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int role, int id)
         {
-            await _accountRepo.Delete(role, id);
-            await _accountRepo.SaveChanges();
-            return Ok();
+            var ok = await _accountRepo.Delete(role, id);
+            if (ok == "Ok")
+                return Ok("Account deleted successfully");
+            return BadRequest(ok);
         }
 
 

@@ -5,8 +5,11 @@ namespace Teamspace.DTO
 {
     public class Account
     {
+        [Required]
         public string FirstName { get; set; }
+        [Required]
         public string LastName { get; set; }
+        [Required]
         public string Name { get; set; }
         public bool Gender { get; set; }
 
