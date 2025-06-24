@@ -10904,23 +10904,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\ALAMIIA\\.nuget\\packages\\": {},
+    "C:\\Users\\c.delivery for lap\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "F:\\ماتريل رابعة\\Graduation Project 1\\Last V 16-3\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+      "projectUniqueName": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
       "projectName": "Teamspace",
-      "projectPath": "F:\\ماتريل رابعة\\Graduation Project 1\\Last V 16-3\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
-      "packagesPath": "C:\\Users\\ALAMIIA\\.nuget\\packages\\",
-      "outputPath": "F:\\ماتريل رابعة\\Graduation Project 1\\Last V 16-3\\Teamspace\\Teamspace\\Teamspace\\obj\\",
+      "projectPath": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\Teamspace.csproj",
+      "packagesPath": "C:\\Users\\c.delivery for lap\\.nuget\\packages\\",
+      "outputPath": "F:\\Learn\\level 4\\graduation project\\Team Space\\Teamspace\\Teamspace\\Teamspace\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\ALAMIIA\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\c.delivery for lap\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -10929,7 +10929,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -11023,13 +11022,5 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.101/PortableRuntimeIdentifierGraph.json"
       }
     }
-  },
-  "logs": [
-    {
-      "code": "Undefined",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "Problem reading the cache file F:\\ماتريل رابعة\\Graduation Project 1\\Last V 16-3\\Teamspace\\Teamspace\\Teamspace\\obj\\project.nuget.cache : Invalid property identifier character: <. Path 'version', line 3, position 0."
-    }
-  ]
+  }
 }
