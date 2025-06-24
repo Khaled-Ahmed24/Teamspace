@@ -6,6 +6,8 @@ using Teamspace.Models;
 using Teamspace.DTO;
 using Microsoft.EntityFrameworkCore;
 using Humanizer;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using Teamspace.Services;
 
 
 [ApiController]
@@ -14,11 +16,12 @@ public class ChatController : ControllerBase
 {
     private readonly AppDbContext _context;
     private readonly IHubContext<ChatHub> _chatHub;
-
-    public ChatController(AppDbContext context, IHubContext<ChatHub> chatHub)
+    private readonly INotificationService _notificationService;
+    public ChatController(AppDbContext context, IHubContext<ChatHub> chatHub, INotificationService notificationService)
     {
         _context = context;
         _chatHub = chatHub;
+        _notificationService = notificationService;
     }
 
     [HttpPost("send")]
@@ -97,11 +100,8 @@ public class ChatController : ControllerBase
     public async Task<IActionResult> SendGroupMessage([FromForm] GroupMessageDto dto)
     {
 
-        var course = await _context.Courses
-            .Include(c => c.Subject)
-            .FirstOrDefaultAsync(c => c.Id == dto.CourseId);
 
-        string groupName = $"{course.Subject.Name}-{course.CreatedAt.Year}-{course.Semester}";
+        string groupName = await GroupName(dto.CourseId);
 
         var message = new GroupMessage
         {
@@ -117,6 +117,25 @@ public class ChatController : ControllerBase
 
         await _chatHub.Clients.Group(groupName)
                       .SendAsync("ReceiveGroupMessage", dto.SenderEmail, dto.Message);
+
+        // --------------------SendNotification-------------- 
+
+        var GroupMembers = await GetGroupMembers(dto.CourseId);
+        foreach (var email in GroupMembers)
+        {
+            if (email == dto.SenderEmail) continue;
+            await _notificationService.SendNotificationAsync(
+             email,
+            $"📢 رسالة جديدة في كورس {groupName}",
+             NotificationType.Message
+             );
+
+            /*
+            // 2. لو المستخدم متصل، ابعتله إشعار لحظي باستخدام SignalR
+            await _chatHub.Clients.User(email)
+                .SendAsync("ReceiveNotification", $"📢 رسالة جديدة في كورس {groupName}");
+            */
+        }
 
         return Ok();
     }
@@ -159,5 +178,41 @@ public class ChatController : ControllerBase
             
         }
         return Ok(messages);
+    }
+
+    [NonAction]
+    public async Task<List<string>> GetGroupMembers(int courseId)
+    {
+        List<string> emails = new List<string>();
+        var staffs = await _context.Registerations.Where(r=> r.CourseId == courseId).ToListAsync();
+        foreach (var item in staffs)
+        {
+            var staff = await _context.Staffs.Where(s => s.Id == item.StaffId).FirstOrDefaultAsync();
+            emails.Add(staff.Email);
+        }
+
+
+        var course = await _context.Courses.Where(c=> c.Id ==  courseId).FirstOrDefaultAsync();
+        var subject = await _context.Subjects.Where(s=> s.Id== course.SubjectId).FirstOrDefaultAsync();
+
+        var students = await _context.StudentStatuses.Where(s=> s.Status == Status.Pending &&
+                                             s.SubjectId == subject.Id).ToListAsync();
+        foreach(var item in students)
+        {
+            var student = await _context.Students.Where(s=> s.Id == item.StudentId).FirstOrDefaultAsync();
+            emails.Add(student.Email);
+        }
+        
+        return emails;
+    }
+    [NonAction]
+    public async Task<string> GroupName(int courseId)
+    {
+        var course = await _context.Courses
+            .Include(c => c.Subject)
+            .FirstOrDefaultAsync(c => c.Id == courseId);
+
+        string groupName = $"{course.Subject.Name}-{course.CreatedAt.Year}-{course.Semester}";
+        return groupName;
     }
 }

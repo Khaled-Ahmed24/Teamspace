@@ -58,5 +58,7 @@ namespace Teamspace.Configurations
 
         public DbSet<GroupMessage> GroupMessages { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
     }
 }

@@ -178,10 +178,76 @@ namespace Teamspace.Controllers
             return RedirectPermanent(newUrl);
         }
 
+        // يجيب كل الامتحانات الخاصة بطالب معين
 
-        private bool ExamExists(int id)
+        [HttpGet]
+
+        public async Task<ActionResult<IEnumerable<Exam>>> GetStudentExams(int studentId)
         {
-            return _context.Exams.Any(e => e.Id == id);
+            /*
+             var questions = await _context.QuestionAnss.Where(q=> q.StudentId == studnetId).ToListAsync();
+             var exams = new List<Exam>();
+             foreach (var item in questions)
+             {
+                 var question = await _context.Questions.Where(q=> q.Id == item.QuestionId).FirstOrDefaultAsync();
+                 var exam = await _context.Exams.Where(e => e.Id == question.ExamId).FirstOrDefaultAsync();
+                 exams.Add(exam);
+             }
+             */
+
+            // omtimiztion
+            var exams = await _context.QuestionAnss
+                         .Where(qa => qa.StudentId == studentId)
+                         .Include(qa => qa.Question)
+                         .ThenInclude(q => q.Exam)
+                         .Select(qa => qa.Question.Exam)
+                         .Distinct()
+                         .ToListAsync();
+
+            return exams;
         }
+
+        // يجيب احابات طالب معين في الامتحان ده والفرونت يقدر يعرف درجته
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<QuestionAns>>> GetStudentExam(int studentId,int examId)
+        {
+            var questionIds = await _context.Questions
+                               .Where(q => q.ExamId == examId)
+                               .Select(q => q.Id)
+                               .ToListAsync();
+
+            var questionAnss = await _context.QuestionAnss
+                               .Where(qa => qa.StudentId == studentId && questionIds.Contains(qa.QuestionId))
+                               .ToListAsync();
+
+            return questionAnss;
+        }
+
+
+        public async Task<List<StudentExamResult>> GetStudentGradesForExam(int examId)
+        {
+            var results = await _context.QuestionAnss
+                .Include(qa => qa.Question)  
+                .Include(qa => qa.Student)
+                .Where(qa => qa.Question.ExamId == examId)
+                .GroupBy(qa => new { qa.StudentId, qa.Student.Email })
+                .Select(group => new StudentExamResult
+                {
+                    StudentId = group.Key.StudentId,
+                    StudentEmail = group.Key.Email,
+                    TotalGrade = group.Sum(qa => qa.Grade)
+                })
+                .ToListAsync();
+            return results;
+        }
+
+        public class StudentExamResult
+        {
+            public int StudentId { get; set; }
+            public string StudentEmail { get; set; } = string.Empty;
+            public double TotalGrade { get; set; }
+        }
+
     }
 }
