@@ -49,7 +49,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-/*
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -59,8 +59,9 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
-*/
 
+
+/*
 //for real-time
 builder.Services.AddCors(options =>
 {
@@ -73,7 +74,7 @@ builder.Services.AddCors(options =>
             .AllowCredentials(); // مهم جدًا لـ SignalR
     });
 });
-
+*/
 builder.Services.AddHttpClient<IAIGradingService, AIGradingService>();
 
 builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();

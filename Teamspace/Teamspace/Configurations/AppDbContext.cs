@@ -56,5 +56,7 @@ namespace Teamspace.Configurations
 
         public DbSet<ChatMessage> ChatMessages { get; set; }
 
+        public DbSet<GroupMessage> GroupMessages { get; set; }
+
     }
 }
