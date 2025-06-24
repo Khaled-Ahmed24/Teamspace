@@ -41,10 +41,9 @@ namespace Teamspace.Controllers
             return await _context.Exams.ToListAsync();
         }
 
-        [HttpGet]
         [HttpGet("{id}")]
         // all exams for specific Course
-        public async Task<ActionResult<IEnumerable<Exam>>> GetCourseExams(int id)
+        public async Task<ActionResult<IEnumerable<ExamDTO>>> GetCourseExams(int id)
         {
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
@@ -52,7 +51,24 @@ namespace Teamspace.Controllers
                 return BadRequest("There is no course with this ID");
             }
             List<Exam> MyExams = await _context.Exams.Where(e => e.CourseId == id).ToListAsync();
-            return await _context.Exams.ToListAsync();
+            List<ExamDTO> TargetExams = new List<ExamDTO>();
+            foreach (var exam in MyExams)
+            {
+                TargetExams.Add(new ExamDTO
+                {
+                    Id = exam.Id,
+                    Description = exam.Description,
+                    type = exam.type,
+                    IsShuffled = exam.IsShuffled,
+                    PassingScore = exam.PassingScore,
+                    GradeIsSeen = exam.GradeIsSeen,
+                    StartDate = exam.StartDate,
+                    Duration = exam.Duration,
+                    Grade = exam.Grade,
+                    CourseId = exam.CourseId
+                });
+            }
+            return TargetExams;
         }
 
         [HttpGet("{id}")]
@@ -90,8 +106,8 @@ namespace Teamspace.Controllers
             // او الفرونت يعملها من غير م الدكتور يختار
             exam.CourseId = _reqExam.CourseId;
             // JWT انهي دكتور الي فاتح
-            int StaffId = 1;//int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            exam.StaffId = StaffId;
+
+            exam.StaffId = 1;
 
             _context.Exams.Add(exam);
             await _context.SaveChangesAsync();
@@ -99,8 +115,9 @@ namespace Teamspace.Controllers
             return NoContent();
 
             // Redirect with 301 Status code to GetAllExams
-            string newUrl = Url.Action("GetAllExams", "Exams");
-            return RedirectPermanent(newUrl);
+            //string newUrl = Url.Action("GetAllExams", "Exams");
+            //return RedirectPermanent(newUrl);
+            return Ok(exam);
         }
 
         
@@ -178,6 +195,7 @@ namespace Teamspace.Controllers
             return RedirectPermanent(newUrl);
         }
 
+
         // يجيب كل الامتحانات الخاصة بطالب معين
 
         [HttpGet]
@@ -224,6 +242,7 @@ namespace Teamspace.Controllers
             return questionAnss;
         }
 
+        [HttpGet]
 
         public async Task<List<StudentExamResult>> GetStudentGradesForExam(int examId)
         {

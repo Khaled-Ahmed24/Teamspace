@@ -24,8 +24,21 @@ namespace Teamspace.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSubjects()
         {
-            var subject = await _context.Subjects.ToListAsync();
-            return Ok(subject);
+            var subjects = await _context.Subjects.ToListAsync();
+            var data = new List<SubjectDTO>();
+            foreach(var sub in subjects)
+            {
+                var dept = _context.Departments.Where(d => d.Id == sub.DepartmentId).FirstOrDefault();
+                data.Add(new SubjectDTO
+                {
+                    Id = sub.Id,
+                    Name = sub.Name,
+                    DepartmentName = dept.Name,
+                    DependentId = sub.DependentId,
+                    Hours = sub.Hours
+                });
+            }
+            return Ok(data);
         }
 
         [HttpPost]

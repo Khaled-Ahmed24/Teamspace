@@ -1,4 +1,6 @@
-﻿namespace Teamspace.DTO
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Teamspace.DTO
 {
     public class LoginUser
     {

@@ -73,12 +73,21 @@ namespace Teamspace.Controllers
         }
 
 
-        [HttpPut /*("{id}")*/]
-        public async Task<IActionResult> PutQuestionAns(List <QuestionAns> questiosnAns)
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutQuestionAns(List <QuestionAnsDTO> questiosnAns)
         {
-            foreach (var questionAns in questiosnAns)
+            foreach (var item in questiosnAns)
             {
-                var question = await _context.Questions.Where(q => q.Id == questionAns.QuestionId).FirstOrDefaultAsync();
+                var question = await _context.Questions.Where(q => q.Id == item.QuestionId).FirstOrDefaultAsync();
+                var ans = await _context.QuestionAnss.Where(q => q.QuestionId == item.QuestionId
+                                                            && q.StudentId == item.StudentId).FirstOrDefaultAsync();
+
+
+                var questionAns = await _context.QuestionAnss.Where(q => q.QuestionId == item.QuestionId && 
+                                                                    q.StudentId == item.StudentId).FirstOrDefaultAsync();
+
+
                 if (question.Type == QuestionType.Written)
                 {
                     string model_answer = question.CorrectAns;
@@ -89,21 +98,21 @@ namespace Teamspace.Controllers
                     var gradingResult = await _gradingService.GradeAnswerAsync(question, questionAns);
                     questionAns.Grade += gradingResult.Grade;
                     questionAns.reasoning = gradingResult.Reasoning;
-
+                    
                     // ai 
                 }
                 else
                 {
+                    ans.StudentAns = questionAns.StudentAns;
                     if (questionAns.StudentAns == question.CorrectAns)
                     {
-                        questionAns.Grade = question.Grade;
+                        ans.Grade = question.Grade;
                     }
                 }
-                _context.Entry(questionAns).State = EntityState.Modified;
+                _context.Entry(ans).State = EntityState.Modified;
             }
             await _context.SaveChangesAsync();
             return NoContent();
-
         }
 
         [HttpPut /*("{id}")*/]

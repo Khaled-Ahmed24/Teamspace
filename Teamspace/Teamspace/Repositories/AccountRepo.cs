@@ -1,12 +1,16 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Humanizer;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Security.Cryptography;
 using Teamspace.Configurations;
 using Teamspace.DTO;
+using Teamspace.Migrations;
 using Teamspace.Models;
 using Teamspace.SpaghettiModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Teamspace.Repositories
 {
@@ -47,17 +51,15 @@ namespace Teamspace.Repositories
 
 
 
-        public async Task<bool> Add(int role, Account account)
+        public async Task<string> Add(int role, Account account)
         {
             string email = GenerateEmail(account.FirstName, account.LastName, account.NationalId);
             string password = GeneratePassword(8);
-            byte[] image;
-
-            using (var memoryStream = new MemoryStream())
-            {
-                await account.Image.CopyToAsync(memoryStream);
-                image = memoryStream.ToArray();
-            }
+            var check = GetByEmail(email);
+            if (check != null)
+                return "This account is already exist.";
+            Console.WriteLine(password);
+            //password = BCrypt.Net.BCrypt.HashPassword(password);
 
             if (role == 3)
             {
@@ -73,14 +75,21 @@ namespace Teamspace.Repositories
                     DepartmentId = account.DepartmentId,
                 };
 
-                // there is a problem here in image
-                if (image.Length > 0)
-                    student.Image = image;
+                using (var memoryStream = new MemoryStream())
+                {
+                    if (account.Image != null && account.Image.Length > 0)
+                    {
+                        await account.Image.CopyToAsync(memoryStream);
+                        student.Image = memoryStream.ToArray();
+                    }
+                }
                 await _db.Students.AddAsync(student);
                 await SaveChanges();
                 var data = await GetByEmail(email);
+                if (data == null)
+                    return "There is a problem occured during adding this account please try again.";
                 InitializeStudentSubjects(data.Id);
-                return true;
+                return "Ok";
             }
             else if (role < 3)
             {
@@ -93,92 +102,130 @@ namespace Teamspace.Repositories
                     NationalId = account.NationalId,
                     Password = password,
                     Role = (Role)role,
-                    Image = image
                 };
+                using (var memoryStream = new MemoryStream())
+                {
+                    if (account.Image != null && account.Image.Length > 0)
+                    {
+                        await account.Image.CopyToAsync(memoryStream);
+                        staff.Image = memoryStream.ToArray();
+                    }
+                }
                 await _db.Staffs.AddAsync(staff);
                 await SaveChanges();
+
+                var schedule = new DoctorSchedule
+                {
+                    StaffId = staff.Id,
+                    ScheduleData = "{}"
+                };
+                _db.DoctorSchedules.Add(schedule);
+
+
+                await SaveChanges();
                 var data = await GetByEmail(email);
-                return true;
+                if (data == null)
+                    return "There is a problem occured during adding account please try again.";
+                return "Ok";
             }
-            return false;
+            return "Invalid role, Please ensure you selected a valid role and try again.";
         }
 
 
-        public async Task<bool> AddByExcel(Excel file)
+        public async Task<List<ExcelErrorDTO>> AddByExcel(Excel file)
         {
+            var Errors = new List<ExcelErrorDTO>();
             if (file == null || file.ExcelFile.Length == 0)
             {
-                return false;
+                var RowErrors = new List<string>();
+                RowErrors.Add(
+                    "File is empty, Please upload a valid Excel file."
+                );
+                Errors.Add(new ExcelErrorDTO { Row = 0, Errors = RowErrors });
+                return Errors;
             }
+
             using (var stream = new MemoryStream())
             {
+                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 await file.ExcelFile.CopyToAsync(stream);
-                stream.Position = 0;
                 using (var excel = new ExcelPackage(stream))
                 {
                     var worksheet = excel.Workbook.Worksheets[0];
                     int rows = worksheet.Dimension.Rows;
-                    if (file.role == 3)
+                    for (int i = 2; i <= rows; i++)
                     {
-                        var students = new List<Student>();
-                        for (int i = 2; i <= rows; i++)
-                        {
-                            string email = GenerateEmail(worksheet.Cells[i, 1].Text, worksheet.Cells[i, 2].Text, worksheet.Cells[i, 6].Text);
-                            string password = GeneratePassword(8);
+                        if (IsRowEmpty(worksheet, i, 9)) continue;
+                        var RowErrors = new List<string>();
+                        var account = new Account{
+                            FirstName = worksheet.Cells[i, 1].Text.Trim(),
+                            LastName = worksheet.Cells[i, 2].Text.Trim(),
+                            Name = worksheet.Cells[i, 3].Text.Trim(),
+                            PhoneNumber = worksheet.Cells[i, 5].Text.Trim(),
+                            NationalId = worksheet.Cells[i, 6].Text.Trim(),
+                        };
+                        // year - gender - department id - Role
 
-                            students.Add(new Student
-                            {
-                                Name = worksheet.Cells[i, 3].Text,
-                                Email = email,
-                                Gender = worksheet.Cells[i, 4].Text == "Female",
-                                PhoneNumber = worksheet.Cells[i, 5].Text,
-                                NationalId = worksheet.Cells[i, 6].Text,
-                                Year = Convert.ToInt32(worksheet.Cells[i, 7].Text),
-                                Password = password,
-                                DepartmentId = Convert.ToInt32(worksheet.Cells[i, 8].Text)
-                            });
-                        }
-                        await _db.Students.AddRangeAsync(students);
-                        return true;
-                    }
-                    else if (file.role < 3)
-                    {
-                        var staffs = new List<Staff>();
-                        for (int i = 2; i <= rows; i++)
-                        {
-                            string email = GenerateEmail(worksheet.Cells[i, 1].Text, worksheet.Cells[i, 2].Text, worksheet.Cells[i, 6].Text);
-                            string password = GeneratePassword(8);
+                        // year
+                        var year = worksheet.Cells[i, 7].Text.Trim();
+                        if (int.TryParse(year, out int output))
+                            account.Year = output;
+                        else RowErrors.Add("Invalid year format. Please enter a valid year.");
 
-                            staffs.Add(new Staff
-                            {
-                                Name = worksheet.Cells[i, 3].Text,
-                                Email = email,
-                                Gender = worksheet.Cells[i, 5].Text == "Female",
-                                PhoneNumber = worksheet.Cells[i, 6].Text,
-                                NationalId = worksheet.Cells[i, 7].Text,
-                                Password = password,
-                                Role = (Role)Convert.ToInt32(worksheet.Cells[i, 8].Text)
-                            });
+                        // gender
+                        var female = worksheet.Cells[i, 4].Text.Trim().Equals("Female", StringComparison.OrdinalIgnoreCase);
+                        var male = worksheet.Cells[i, 4].Text.Trim().Equals("Male", StringComparison.OrdinalIgnoreCase);
+                        if (!female && !male) RowErrors.Add("Invalid gender format. Please enter a valid gender.");
+                        else if (female) account.Gender = true;
+                        else account.Gender = false;
+
+                        // department id
+                        var deptName = worksheet.Cells[i, 8].Text.Trim();
+                        var dept = await _db.Departments.Where(d => d.Name == deptName)
+                            .FirstOrDefaultAsync();
+                        account.DepartmentId = dept.Id;
+
+                        // validation using data annotation
+                        var validationContext = new ValidationContext(account, null, null);
+                        var validationResults = new List<ValidationResult>();
+                        bool isValid = Validator.TryValidateObject(account, validationContext, validationResults, true);
+                        if (!isValid)
+                        {
+                            var errs = validationResults.Select(r => r.ErrorMessage).ToList();
+                            foreach (var err in errs) RowErrors.Add(err);
                         }
-                        await _db.AddRangeAsync(staffs);
-                        return true;
+                        if(RowErrors.Count > 0)
+                        {
+                            Errors.Add(new ExcelErrorDTO
+                            {
+                                Row = i,
+                                Errors = RowErrors
+                            });
+                            continue;
+                        }
+                            
+                        // role
+                        var input = worksheet.Cells[i, 9].Text.Trim();
+                        if (Enum.TryParse<Role>(input, true, out Role role))
+                        {
+                            var ok = await Add(3, account);
+                            if(ok != "Ok") RowErrors.Add(ok);
+                        }
+                        else RowErrors.Add("Invalid role format. Please enter a valid role (Student, Professor, or TA).");
                     }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                }            
             }
+            return Errors;
         }
 
 
-        public async Task<bool> Update(int role, int id, Account account)
+        public async Task<string> Update(int role, int id, Account account)
         {
             if (role == 3)
             {
                 var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
                 if (student == null)
-                    return false;
+                    return "Student not found";
 
                 string email = GenerateEmail(account.FirstName, account.LastName, account.NationalId);
 
@@ -188,13 +235,14 @@ namespace Teamspace.Repositories
                 student.NationalId = account.NationalId;
                 student.Year = account.Year;
                 student.DepartmentId = account.DepartmentId;
-                return true;
+                await SaveChanges();
+                return "Ok";
             }
             else if (role < 3)
             {
                 var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
                 if (staff == null)
-                    return false;
+                    return "Staff not found";
 
 
                 string email = GenerateEmail(account.FirstName, account.LastName, account.NationalId);
@@ -203,34 +251,35 @@ namespace Teamspace.Repositories
                 staff.PhoneNumber = account.PhoneNumber;
                 staff.NationalId = account.NationalId;
                 staff.PhoneNumber = account.PhoneNumber;
-                return true;
+                await SaveChanges();
+                return "Ok";
             }
             else
-                return false;
+                return "Invalid role, Please ensure you selected a valid role and try again.";
         }
 
 
-        public async Task<bool> Delete(int role, int id)
+        public async Task<string> Delete(int role, int id)
         {
             if (role == 3)
             {
                 var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
-                if (student == null) return false;
-                var stutes = await _db.StudentStatuses.Where(st => st.Id == id).ToListAsync();
-                _db.StudentStatuses.RemoveRange(stutes);
+                if (student == null) return "Student not found";
+                await UnInitializeStudentSubjects(id);
                 _db.Students.Remove(student);
-                return true;
+                await SaveChanges();
+                return "Ok";
             }
             else if (role < 3)
             {
                 var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
-                if (staff == null)
-                    return false;
+                if (staff == null) return "Staff not found";
                 _db.Staffs.Remove(staff);
-                return true;
+                await SaveChanges();
+                return "Ok";
             }
             else
-                return false;
+                return "Invalid role, Please ensure you selected a valid role and try again.";
         }
 
         public async Task<dynamic?> GetByEmail(string email)
@@ -288,8 +337,25 @@ namespace Teamspace.Repositories
                 });
             }
             await _db.StudentStatuses.AddRangeAsync(statuses);
-            await SaveChanges();
+            await _db.SaveChangesAsync();
             return;
+        }
+        public async Task UnInitializeStudentSubjects(int id)
+        {
+            var statuses = await _db.StudentStatuses.Where(s => s.StudentId == id).ToListAsync();
+            if (statuses.Count > 0)
+            {
+                _db.StudentStatuses.RemoveRange(statuses);
+                await SaveChanges();
+            }
+        }
+
+        public bool IsRowEmpty(ExcelWorksheet worksheet, int row, int maxCols)
+        {
+            for (int i = 1; i <= maxCols; i++)
+                if (!string.IsNullOrEmpty(worksheet.Cells[row, i].Text)) return false;
+
+            return true;
         }
     }
 }

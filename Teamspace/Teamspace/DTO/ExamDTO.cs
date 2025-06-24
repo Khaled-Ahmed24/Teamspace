@@ -4,6 +4,7 @@ namespace Teamspace.DTO
 {
     public class ExamDTO
     {
+        public int Id { get; set; }
         public string Description { get; set; }
         public ExamType type { get; set; }
 

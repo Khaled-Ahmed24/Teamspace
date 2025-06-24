@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
+using Teamspace.DTO;
 using Teamspace.Models;
 
 namespace Teamspace.Repositories
@@ -33,10 +35,10 @@ namespace Teamspace.Repositories
                 }).ToListAsync();
         }
 
-        public async Task<Question> GetById(int ExamId, int QuestionId)
+        public async Task<Question> GetById(int QuestionId)
         {
             return await _db.Questions
-                .Where(q => q.ExamId == ExamId && q.Id == QuestionId)
+                .Where(q => q.Id == QuestionId)
                 .Select(q => new Question
                 {
                     Id = q.Id,
@@ -54,27 +56,108 @@ namespace Teamspace.Repositories
                 }).FirstOrDefaultAsync();
         }
 
-        public async Task<bool> Add(Question question)
+        public async Task<bool> Add(int examId, QuestionDTO question)
         {
-            await _db.Questions.AddAsync(question);
-            return true;
-        }
-
-        public async Task<bool> Update(Question question)
-        {
-            _db.Questions.Update(question);
-            return true;
-        }
-
-
-        public async Task<bool>Delete(int QuestionId)
-        {
-            var question = await _db.Questions.FirstOrDefaultAsync(q => q.Id == QuestionId);
+            var q = new Question
+            {
+                Title = question.Title,
+                Type = question.Type,
+                CorrectAns = question.CorrectAns,
+                Grade = question.Grade,
+                ExamId = examId,
+            };
+            using (var stream = new MemoryStream())
+            {
+                await question.File.CopyToAsync(stream);
+                q.File = stream.ToArray();
+            }
+            using (var stream = new MemoryStream())
+            {
+                await question.Image.CopyToAsync(stream);
+                q.Image = stream.ToArray();
+            }
+            await _db.Questions.AddAsync(q);
+            await Save();
+            if(question.Type == QuestionType.Written)
+                return true; // No choices to add for written questions
             foreach (var choice in question.Choices)
             {
-                _db.Choices.Remove(choice);
+                await _db.Choices.AddAsync(new Choice
+                {
+                    choice = choice.choice,
+                    QuestionId = q.Id,
+                    AddedOn = DateTime.Now
+                });
             }
+            await Save();
+            return true;
+        }
+
+        public async Task<bool> Update(QuestionDTO question)
+        {
+            var q = await _db.Questions.FirstOrDefaultAsync(q => q.Id == question.Id);
+            if (q == null) return false;
+            q.Title = question.Title;
+            q.Type = question.Type;
+            q.CorrectAns = question.CorrectAns;
+            q.Grade = question.Grade;
+            using(var stream = new MemoryStream())
+            {
+                await question.File.CopyToAsync(stream);
+                q.File = stream.ToArray();
+            }
+            using (var stream = new MemoryStream())
+            {
+                await question.Image.CopyToAsync(stream);
+                q.Image = stream.ToArray();
+            }
+            var cur_choices = await _db.Choices.Where(c => c.QuestionId == q.Id).ToListAsync();
+            foreach(var choice in question.Choices)
+            {
+                if(cur_choices.Find(c => c.Id == choice.Id) == null)
+                {
+                    await _db.Choices.AddAsync(new Choice
+                    {
+                        choice = choice.choice,
+                        QuestionId = q.Id,
+                        AddedOn = DateTime.Now
+                    });
+                }
+                else
+                {
+                    var cur_choice = cur_choices.Find(c => c.Id == choice.Id);
+                    if (cur_choice == null) continue;
+                    cur_choice.choice = choice.choice;
+                    _db.Choices.Update(cur_choice);
+                }
+            }
+            foreach(var choice in cur_choices)
+            {
+                if (question.Choices.Find(c => c.Id == choice.Id) == null)
+                    _db.Choices.Remove(choice);
+            }
+            return true;
+        }
+
+
+        public async Task<bool>DeleteQuestion(int QuestionId)
+        {
+            var question = await GetById(QuestionId);
+            if (question == null) return false;
+            foreach (var choice in question.Choices)
+                await DeleteChoice(QuestionId, choice.Id);
             _db.Questions.Remove(question);
+            return true;
+        }
+
+        public async Task<bool> DeleteChoice(int QuestionId, int ChoiceId)
+        {
+            var choice = await _db.Choices.FirstOrDefaultAsync(c => c.Id == ChoiceId && c.QuestionId == QuestionId);
+            if (choice != null)
+            {
+                _db.Choices.Remove(choice);
+                return true;
+            }
             return false;
         }
 

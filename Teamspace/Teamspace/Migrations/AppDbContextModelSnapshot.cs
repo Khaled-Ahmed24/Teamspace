@@ -73,19 +73,25 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Choice", b =>
                 {
-                    b.Property<int>("QuestionId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("choice")
-                        .HasColumnType("nvarchar(450)");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("AddedOn")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Id")
+                    b.Property<int>("QuestionId")
                         .HasColumnType("int");
 
-                    b.HasKey("QuestionId", "choice");
+                    b.Property<string>("choice")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId");
 
                     b.ToTable("Choices");
                 });
@@ -155,6 +161,20 @@ namespace Teamspace.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("Teamspace.Models.DoctorSchedule", b =>
+                {
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ScheduleData")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("StaffId");
+
+                    b.ToTable("DoctorSchedules");
                 });
 
             modelBuilder.Entity("Teamspace.Models.Exam", b =>
@@ -420,7 +440,6 @@ namespace Teamspace.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CorrectAns")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ExamId")
@@ -698,6 +717,17 @@ namespace Teamspace.Migrations
                     b.Navigation("Department");
                 });
 
+            modelBuilder.Entity("Teamspace.Models.DoctorSchedule", b =>
+                {
+                    b.HasOne("Teamspace.Models.Staff", "Staff")
+                        .WithOne("DoctorSchedules")
+                        .HasForeignKey("Teamspace.Models.DoctorSchedule", "StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("Teamspace.Models.Exam", b =>
                 {
                     b.HasOne("Teamspace.Models.Course", "Course")
@@ -923,6 +953,9 @@ namespace Teamspace.Migrations
 
             modelBuilder.Entity("Teamspace.Models.Staff", b =>
                 {
+                    b.Navigation("DoctorSchedules")
+                        .IsRequired();
+
                     b.Navigation("Exams");
 
                     b.Navigation("Materials");
