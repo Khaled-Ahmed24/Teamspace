@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -24,7 +24,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 // prepare JWT authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -38,12 +37,47 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = 
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecritKey"])),
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey =
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecritKey"])),
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var rawHeader = context.Request.Headers["Authorization"].ToString();
+            Console.WriteLine("🔍 RAW HEADER: [" + rawHeader + "]");
+
+            // إزالة كلمة Bearer والمسافات الزايدة
+            if (!string.IsNullOrEmpty(rawHeader) && rawHeader.StartsWith("Bearer "))
+            {
+                context.Token = rawHeader.Substring("Bearer ".Length).Trim();
+
+            }
+            Console.WriteLine("✔️ Auth Header Trimmed: " + rawHeader.ToString().Trim());
+
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine("🔴 AUTH FAILED: " + context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("🟢 TOKEN VALIDATED ✅");
+
+            foreach (var claim in context.Principal.Claims)
+            {
+                Console.WriteLine($"CLAIM: {claim.Type} = {claim.Value}");
+            }
+
+            return Task.CompletedTask;
+        }
+    };
+
 });
 
 
@@ -70,7 +104,7 @@ app.UseRouting();
 app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
-app.UseAuthorization();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

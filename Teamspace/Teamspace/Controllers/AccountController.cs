@@ -28,10 +28,19 @@ namespace Teamspace.Controllers
         }
 
 
+
+        [HttpGet("token-check")]
+        [Authorize]
+        public IActionResult TokenCheck()
+        {
+            return Ok("✅ Token passed authorization");
+        }
         [HttpGet("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize]
         public async Task<IActionResult> GetAllByRole(int role)
         {
+            var token = HttpContext.Request.Headers["Authorization"].ToString();
+            Console.WriteLine("TOKEN: " + token);
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -51,7 +60,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int role, int id)
         {
             if (role == 3)
@@ -73,7 +82,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPost("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "admin")]
         public async Task<IActionResult> AddAccount([FromQuery] int role, [FromForm] Account account)
         {
             var ok = await _accountRepo.Add(role, account);  
@@ -84,7 +93,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPost("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddByExcel([FromForm] Excel file)
         {
             var errors = await _accountRepo.AddByExcel(file);
@@ -94,7 +103,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update([FromQuery] int role, [FromQuery] int id, [FromForm] Account account)
         {
             var ok = await _accountRepo.Update(role, id, account);
@@ -105,7 +114,7 @@ namespace Teamspace.Controllers
 
 
         [HttpDelete("[action]")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int role, int id)
         {
             var ok = await _accountRepo.Delete(role, id);
@@ -121,8 +130,7 @@ namespace Teamspace.Controllers
             var user = await _accountRepo.GetByEmail(UserFromRequest.Email);
             if (user != null)
             {
-                /*BCrypt.Net.BCrypt.Verify(UserFromRequest.Password, user.Password)*/
-                if (UserFromRequest.Password == user.Password)
+                if (user.Password == UserFromRequest.Password)
                 {
                     // Claims
                     List<Claim> UserClaims = new List<Claim>();
@@ -149,6 +157,7 @@ namespace Teamspace.Controllers
                     );
                     var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     Console.WriteLine(id);
+
                     return Ok(new
                     {
                         token = new JwtSecurityTokenHandler().WriteToken(token),

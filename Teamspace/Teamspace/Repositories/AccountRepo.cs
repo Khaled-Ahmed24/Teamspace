@@ -55,7 +55,7 @@ namespace Teamspace.Repositories
         {
             string email = GenerateEmail(account.FirstName, account.LastName, account.NationalId);
             string password = GeneratePassword(8);
-            var check = GetByEmail(email);
+            var check = await GetByEmail(email);
             if (check != null)
                 return "This account is already exist.";
             Console.WriteLine(password);
@@ -284,13 +284,17 @@ namespace Teamspace.Repositories
 
         public async Task<dynamic?> GetByEmail(string email)
         {
-            return await _db.Students.
-                Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student })
-                .Union(
-                      _db.Staffs
-                      .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role })
-                ).FirstOrDefaultAsync(u => u.Email == email);
+            var students = _db.Students
+                .Where(s => s.Email == email)
+                .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student });
+
+            var staff = _db.Staffs
+                .Where(s => s.Email == email)
+                .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role });
+
+            return await students.Union(staff).FirstOrDefaultAsync();
         }
+
 
         public async Task SaveChanges()
         {

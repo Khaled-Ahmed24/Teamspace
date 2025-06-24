@@ -10,17 +10,24 @@ namespace Teamspace.Controllers
 {
     [Route("[controller]/[action]")]
     [ApiController]
-    public class StaffsController : ControllerBase
+    public class RegisterationController : ControllerBase
     {
         private readonly AppDbContext _context;
 
-        public StaffsController(AppDbContext context)
+        public RegisterationController(AppDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Course>>> GetCourses()
+        {
+            return await _context.Courses.ToListAsync();
+        }
+
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<Course>>> GetStudentCourses(int id)
         {
             return await _context.Courses.ToListAsync();
         }
