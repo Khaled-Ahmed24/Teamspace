@@ -236,6 +236,9 @@ namespace Teamspace.Migrations
                     b.Property<int>("CourseId")
                         .HasColumnType("int");
 
+                    b.Property<byte[]>("File")
+                        .HasColumnType("varbinary(max)");
+
                     b.Property<string>("Message")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

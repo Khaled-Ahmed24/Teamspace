@@ -10,6 +10,8 @@ using Teamspace.Models;
 using Teamspace.Repositories;
 using Teamspace.SpaghettiModels;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Teamspace.Controllers
 {
@@ -21,10 +23,14 @@ namespace Teamspace.Controllers
         public AccountRepo _accountRepo;
         private readonly IConfiguration config;
 
-        public AccountController(AccountRepo accountRepo, IConfiguration config)
+        // for test
+        private readonly AppDbContext _db;
+
+        public AccountController(AccountRepo accountRepo, IConfiguration config, AppDbContext db)
         {
             _accountRepo = accountRepo;
             this.config = config;
+            _db = db;
         }
 
 
@@ -81,6 +87,8 @@ namespace Teamspace.Controllers
                 return Ok("Account added successfully");
             return BadRequest(ok);
         }
+
+       
 
 
         [HttpPost("[action]")]

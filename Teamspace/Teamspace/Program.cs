@@ -69,7 +69,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:8080", "https://localhost:44395") // عدّل حسب الحاجة
+             .WithOrigins("http://localhost:5173", "http://localhost:8080", "https://localhost:44395") // عدّل حسب الحاجة
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); // مهم جدًا لـ SignalR
@@ -105,6 +105,7 @@ app.MapControllers();
 // for real-time
 app.MapHub<ChatHub>("/chathub");
 app.MapHub<NotificationHub>("/notificationhub");
+
 
 
 app.Run();

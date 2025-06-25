@@ -14,10 +14,15 @@ namespace Teamspace.Hubs
             _context = context;
         }
         // سيتم استدعاؤها من الفرونت لإرسال الرسالة
-        public async Task SendMessage(string fromUserId, string toUserId, string message)
+        public async Task SendMessage(string fromUserId, string toUserId, string message, byte[]? fileData, string? fileName)
         {
-            // أرسل الرسالة للمستخدم الآخر
-            await Clients.User(toUserId).SendAsync("ReceiveMessage", fromUserId, message);
+            await Clients.User(toUserId).SendAsync("ReceiveMessage", new
+            {
+                fromUserId,
+                message,
+                fileName,
+                fileDataBase64 = fileData != null ? Convert.ToBase64String(fileData) : null
+            });
         }
 
         // ------------------------------------ GroupChat--------------------------------------
@@ -43,7 +48,8 @@ namespace Teamspace.Hubs
             string groupName = $"{course.Subject.Name}-{course.CreatedAt.Year}-{course.Semester}";
 
             await Clients.Group(groupName)
-                         .SendAsync("ReceiveGroupMessage", senderEmail, message, DateTime.UtcNow);
+                        .SendAsync("ReceiveGroupMessage", senderEmail, message, DateTime.UtcNow);
+           
         }
     }
 }
