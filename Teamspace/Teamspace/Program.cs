@@ -19,7 +19,7 @@ builder.Services.AddScoped<MaterialsRepo>();
 builder.Services.AddScoped<PostRepo>();
 builder.Services.AddScoped<QuestionRepo>();
 
-builder.Services.AddControllers();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -43,41 +43,6 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey =
         new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecritKey"])),
     };
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            var rawHeader = context.Request.Headers["Authorization"].ToString();
-            Console.WriteLine("🔍 RAW HEADER: [" + rawHeader + "]");
-
-            // إزالة كلمة Bearer والمسافات الزايدة
-            if (!string.IsNullOrEmpty(rawHeader) && rawHeader.StartsWith("Bearer "))
-            {
-                context.Token = rawHeader.Substring("Bearer ".Length).Trim();
-
-            }
-            Console.WriteLine("✔️ Auth Header Trimmed: " + rawHeader.ToString().Trim());
-
-            return Task.CompletedTask;
-        },
-        OnAuthenticationFailed = context =>
-        {
-            Console.WriteLine("🔴 AUTH FAILED: " + context.Exception.Message);
-            return Task.CompletedTask;
-        },
-        OnTokenValidated = context =>
-        {
-            Console.WriteLine("🟢 TOKEN VALIDATED ✅");
-
-            foreach (var claim in context.Principal.Claims)
-            {
-                Console.WriteLine($"CLAIM: {claim.Type} = {claim.Value}");
-            }
-
-            return Task.CompletedTask;
-        }
-    };
-
 });
 
 
@@ -101,9 +66,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 

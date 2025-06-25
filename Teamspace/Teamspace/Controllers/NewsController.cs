@@ -12,7 +12,7 @@ namespace Teamspace.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    //[Authorize]
 
     public class NewsController : ControllerBase
     {

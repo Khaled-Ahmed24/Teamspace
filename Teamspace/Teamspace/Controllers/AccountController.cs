@@ -29,18 +29,10 @@ namespace Teamspace.Controllers
 
 
 
-        [HttpGet("token-check")]
-        [Authorize]
-        public IActionResult TokenCheck()
-        {
-            return Ok("✅ Token passed authorization");
-        }
         [HttpGet("[action]")]
-        //[Authorize]
+        [Authorize]
         public async Task<IActionResult> GetAllByRole(int role)
         {
-            var token = HttpContext.Request.Headers["Authorization"].ToString();
-            Console.WriteLine("TOKEN: " + token);
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
             var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
@@ -157,7 +149,6 @@ namespace Teamspace.Controllers
                     );
                     var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                     Console.WriteLine(id);
-
                     return Ok(new
                     {
                         token = new JwtSecurityTokenHandler().WriteToken(token),
