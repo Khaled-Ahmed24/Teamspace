@@ -33,11 +33,12 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost("{id}")]
-        public async Task<ActionResult<Registeration>> Registerater(int id)
+        public async Task<ActionResult<Registeration>> Registerater(int courseId,int staffId)
         {
             Registeration registeration = new Registeration();
 
-            registeration.CourseId = id;
+            registeration.CourseId = courseId;
+            registeration.StaffId = staffId;
             await _context.AddAsync(registeration);
             await _context.SaveChangesAsync();
             // JWT

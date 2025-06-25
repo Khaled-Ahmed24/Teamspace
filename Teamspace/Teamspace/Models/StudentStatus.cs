@@ -12,7 +12,7 @@
         public int StudentId { get; set; }
         public int SubjectId { get; set; }
         public Status Status { get; set; }
-        public int Grade { get; set; }
+        public double Grade { get; set; }
         public Student Student { get; set; }
         public Subject Subject { get; set; }
     }

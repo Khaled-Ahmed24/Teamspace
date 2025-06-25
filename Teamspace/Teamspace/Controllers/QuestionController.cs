@@ -54,6 +54,25 @@ namespace Teamspace.Controllers
             return BadRequest(new { msg = "Failed to add question.", WrongQuestions, questions });
         }
 
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Add1([FromQuery] int examId,QuestionDTO req_question)
+        {
+            var result = await _questionRepo.Add(examId, req_question);
+            await _questionRepo.Save();
+
+            /*
+            Question question = new Question();
+            question.Title = req_question.Title;
+            question.ExamId = examId;
+            question.Grade = req_question.Grade;
+            question.CorrectAns = req_question.CorrectAns; 
+            question.Type = req_question.Type;
+
+            var result = await _questionRepo.Add(examId, question);
+            await _questionRepo.Save();*/
+            return Ok("Question Added successfully.");
+        }
+
         [HttpPut("[action]")]
         public async Task<IActionResult> Update([FromForm] List<QuestionDTO> req_questions, [FromQuery]int examId)
         {

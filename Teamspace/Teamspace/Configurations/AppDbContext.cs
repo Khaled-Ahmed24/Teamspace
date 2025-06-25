@@ -31,6 +31,13 @@ namespace Teamspace.Configurations
                 HasKey(s => new {  s.Id});
             modelBuilder.Entity<NewsComment>().
                 HasKey(s => new { s.NewsId, s.Content, s.SentAt });
+            modelBuilder.Entity<LevelSchedule>()
+            .HasKey(ls => new { ls.DepartmentId, ls.Level }); // Composite Key
+
+            modelBuilder.Entity<LevelSchedule>()
+                .HasOne(ls => ls.Department)
+                .WithMany(d => d.LevelSchedules)
+                .HasForeignKey(ls => ls.DepartmentId);
 
         }
         public DbSet<Course> Courses { get; set; }
@@ -54,5 +61,14 @@ namespace Teamspace.Configurations
         public DbSet<DoctorSchedule> DoctorSchedules { get; set; }
 
         public DbSet<CourseDepartment> CourseDepartments { get; set; }
+
+        public DbSet<LevelSchedule> LevelSchedules { get; set; }
+
+        public DbSet<ChatMessage> ChatMessages { get; set; }
+
+        public DbSet<GroupMessage> GroupMessages { get; set; }
+
+        public DbSet<Notification> Notifications { get; set; }
+
     }
 }

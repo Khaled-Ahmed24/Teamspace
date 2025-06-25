@@ -13,5 +13,6 @@ namespace Teamspace.DTO
         public string? CorrectAns { get; set; }
         public int Grade { get; set; }
         public List<ChoiceDTO>? Choices { get; set; }
+
     }
 }

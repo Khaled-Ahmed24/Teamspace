@@ -18,19 +18,22 @@ namespace Teamspace.Repositories
 
         public bool addMaterials([FromForm] DtoMaterials dtoMaterials)
         {
-            using var stream = new MemoryStream();
-            dtoMaterials.File.CopyTo(stream);
-            if (dtoMaterials == null) return false;
-            Material Material = new Material
+            foreach (var file in dtoMaterials.Files)
             {
-                Name = dtoMaterials.Name,
-                File = stream.ToArray(),
-                CourseId = dtoMaterials.CourseId,
-                UploadedAt = DateTime.Now,
-                StaffId = dtoMaterials.StaffId
-            };
-            _db.Materials.Add(Material);
-            _db.SaveChanges();
+                using var stream = new MemoryStream();
+                file.CopyTo(stream);
+                if (dtoMaterials == null) return false;
+                Material Material = new Material
+                {
+                    Name = dtoMaterials.Name,
+                    File = stream.ToArray(),
+                    CourseId = dtoMaterials.CourseId,
+                    UploadedAt = DateTime.Now,
+                    StaffId = dtoMaterials.StaffId
+                };
+                _db.Materials.Add(Material);
+                _db.SaveChanges();
+            }
             return true;
         }
 
@@ -59,8 +62,11 @@ namespace Teamspace.Repositories
             }
             return false;
         }
+
+        // هل مستاهلة نعملها اصلا (احذف وارفع من جديد
         //updatedate here
-        public bool UpdateMaterial([FromForm] DtoMaterials dtoMaterials)
+
+        /*public bool UpdateMaterial([FromForm] DtoMaterials dtoMaterials)
         {
             Material material = _db.Materials.First(s => s.Id == dtoMaterials.Id);
             if (material == null) return false;
@@ -72,7 +78,7 @@ namespace Teamspace.Repositories
             _db.SaveChanges();
             return true;
         }
-
+        */
     }
 
 }
