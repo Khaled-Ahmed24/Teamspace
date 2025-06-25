@@ -8,6 +8,6 @@
         public int CourseId { get; set; }
         public DateTime UploadedAt { get; set; }
         // file
-        public IFormFile File { get; set; }
+        public List<IFormFile> Files { get; set; }
     }
 }
