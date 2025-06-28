@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using System.Security.Claims;
 using Teamspace.Configurations;
 using Teamspace.Models;
@@ -27,9 +28,21 @@ namespace Teamspace.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Course>>> GetStudentCourses(int id)
+        public async Task<IActionResult> GetStudentCourses(int id)
         {
-            return await _context.Courses.ToListAsync();
+            var subjects_Ids = await _context.StudentStatuses
+                .Where(s => s.StudentId == id && s.Status == Status.Pending)
+                .Select(s => s.SubjectId)
+                .ToListAsync();
+
+            var courses = new List<Course>();
+            foreach (var sub_id in subjects_Ids)
+            {
+                courses.Add(await _context.Courses
+                    .Where(c => c.SubjectId == sub_id).OrderBy(k => k.Year).LastAsync());
+            }
+
+            return Ok(courses);
         }
 
         [HttpPost("{id}")]

@@ -18,71 +18,103 @@ namespace Teamspace.Repositories
 
         public async Task<dynamic>GetById(int role, int id)
         {
-            return await _db.Students.Select(s => new 
+
+            if(role == 3)
             {
-                ID = s.Id,
-                Name = s.Name,
-                Gender = s.Gender,
-                Phone = s.PhoneNumber,
-                Image = s.Image,
-                Role = 0
-            }).Union(_db.Staffs.Select(s => new
+                var profile = await _db.Students.Where(s => s.Id == id).Select(s => new
+                {
+                    ID = s.Id,
+                    Name = s.Name,
+                    Gender = s.Gender,
+                    Phone = s.PhoneNumber,
+                    Image = s.Image,
+                }).FirstOrDefaultAsync();
+                return profile;
+
+            }
+            else if(role < 3)
             {
-                ID = s.Id,
-                Name = s.Name,
-                Gender = s.Gender,
-                Phone = s.PhoneNumber,
-                Image = s.Image,
-                Role = 1
-            })).FirstOrDefaultAsync(u => u.ID == id && u.Role == role);
+                var profile = await _db.Staffs.Where(s => s.Id == id).Select(s => new
+                {
+                    ID = s.Id,
+                    Name = s.Name,
+                    Gender = s.Gender,
+                    Phone = s.PhoneNumber,
+                    Image = s.Image,
+                }).FirstOrDefaultAsync();
+                return profile;
+            }
+            return null;
         }
 
-        public async Task<bool>Update(int role, int id, Profile profile)
+        public async Task<string>Update(int role, int id, Profile profile)
         {
 
-            if (role == 0)
+            if (role == 3)
             {
-                var student = await _db.Students.SingleOrDefaultAsync(s => s.Id == id);
-                if (student == null)
-                    return false;
+                var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
+                if (student == null) return "This student not exist";
 
                 student.Name = profile.Name;
                 student.PhoneNumber = profile.PhoneNumber;
                 student.Gender = profile.Gender;
                 using(var stream = new MemoryStream())
                 {
-                    await profile.Image.CopyToAsync(stream);
-                    student.Image = stream.ToArray();
+                    if(profile.Image != null && profile.Image.Length > 0)
+                    {
+                        await profile.Image.CopyToAsync(stream);
+                        student.Image = stream.ToArray();
+                    }
                 }
                 //student.NationalId = account.NationalId;
                 //student.Email = account.Email;
                 //student.Year = account.Year;
                 //student.DepartmentId = account.DepartmentId;
-                return true;
+                await SaveChanges();
+                return "Ok";
             }
-            else if (role == 1)
+            else if (role < 3)
             {
-                var staff = await _db.Staffs.SingleOrDefaultAsync(s => s.Id == id);
-                if (staff == null)
-                    return false;
+                var staff = await _db.Staffs.FirstOrDefaultAsync(s => s.Id == id);
+                if (staff == null) return "This staff not exist";
 
                 staff.Name = profile.Name;
                 staff.PhoneNumber = profile.PhoneNumber;
                 staff.Gender = profile.Gender;
                 using(var stream = new MemoryStream())
                 {
-                    await profile.Image.CopyToAsync(stream);
-                    staff.Image = stream.ToArray();
+                    if(profile.Image != null && profile.Image.Length > 0)
+                    {
+                        await profile.Image.CopyToAsync(stream);
+                        staff.Image = stream.ToArray();
+                    } 
                 }
-                return true;
+                await SaveChanges();
+                return "Ok";
             }
-            return false;
+            return "Invalid role please ensure you select a valid role :)";
         }
 
-        public async Task<bool> ChangePassword()
+        public async Task<string> ChangePassword(int id, int role, Password pass)
         {
-            // type your body here
-            return true;
+            // hashing password
+            if(role == 3)
+            {
+                var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
+                if (student == null) return "This student not exist";
+                student.Password = pass.Pass;
+                await SaveChanges();
+                return "Ok";
+            }
+            else if (role < 3)
+            {
+                var staff = await _db.Staffs.FirstOrDefaultAsync(s => s.Id == id);
+                if (staff == null) return "This staff not exist";
+                staff.Password = pass.Pass;
+                await SaveChanges();
+                return "Ok";
+            }
+            return "Invalid role please ensure you select a valid role :)";
         }
         public async Task SaveChanges()
         {

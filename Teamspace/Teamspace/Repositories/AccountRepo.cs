@@ -88,7 +88,7 @@ namespace Teamspace.Repositories
                 var data = await GetByEmail(email);
                 if (data == null)
                     return "There is a problem occured during adding this account please try again.";
-                InitializeStudentSubjects(data.Id);
+                await InitializeStudentSubjects(data.Id);
                 return "Ok";
             }
             else if (role < 3)
@@ -147,7 +147,6 @@ namespace Teamspace.Repositories
 
             using (var stream = new MemoryStream())
             {
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 await file.ExcelFile.CopyToAsync(stream);
                 using (var excel = new ExcelPackage(stream))
                 {
