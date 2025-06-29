@@ -5,7 +5,8 @@
         Final,
         Midterm,
         Practical,
-        Quiz
+        Quiz,
+        assignment
     }
     public class Exam
     {

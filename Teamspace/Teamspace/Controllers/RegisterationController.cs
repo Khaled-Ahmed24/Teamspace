@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 using Microsoft.EntityFrameworkCore;
@@ -28,8 +29,14 @@ namespace Teamspace.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "Admin,Professor,TA")]
         public async Task<IActionResult> GetStudentCourses(int id)
         {
+            var studnet = await _context.Students.Where(s => s.Id == id).FirstOrDefaultAsync();
+            if (studnet == null)
+            {
+                return NotFound("thres is no sutent whit this Id");
+            }
             var subjects_Ids = await _context.StudentStatuses
                 .Where(s => s.StudentId == id && s.Status == Status.Pending)
                 .Select(s => s.SubjectId)
@@ -46,8 +53,20 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost("{id}")]
+        [Authorize(Roles = "Admin,Professor,TA")]
         public async Task<ActionResult<Registeration>> Registerater(int courseId,int staffId)
         {
+            var course = await _context.Courses.Where(c=> c.Id == courseId).FirstOrDefaultAsync();
+            if (course == null)
+            {
+                return NotFound("there is no course with this Id");
+            }
+            var staff = await _context.Staffs.Where(c => c.Id == staffId).FirstOrDefaultAsync();
+            if (staff == null)
+            {
+                return NotFound("there is no staff with this Id");
+            }
+
             Registeration registeration = new Registeration();
 
             registeration.CourseId = courseId;
@@ -61,6 +80,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
+        [Authorize(Roles = "Admin,Student")]
         public async Task<IActionResult> GetAvailableCourses([FromQuery] int id)
         {
             //int StudentId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -91,8 +111,15 @@ namespace Teamspace.Controllers
         }
 
         [HttpPut("[action]")]
+        [Authorize(Roles = "Admin,Student")]
         public async Task<IActionResult> Register([FromQuery] int studentId, [FromQuery] int courseId)
         {
+            var course = await _context.Courses.Where(c => c.Id == courseId).FirstOrDefaultAsync();
+            if (course == null)
+            {
+                return NotFound("there is no course with this Id");
+            }
+
             var subjectId = await _context.Courses
                 .Where(c => c.Id == courseId)
                 .Select(c => c.SubjectId)

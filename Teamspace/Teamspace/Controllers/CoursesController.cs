@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<Course>> PostCourse([FromForm] CourseDTO _reqCourse)
         {
             var subject = _context.Subjects.FirstOrDefault(s=> s.Name == _reqCourse.SubjectName);
@@ -82,6 +84,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutCourse(int id, [FromForm] CourseDTO _reqCourse)
         {
             var course = await _context.Courses.FindAsync(id);
@@ -118,6 +121,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
             var course = await _context.Courses.FindAsync(id);

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Teamspace.Configurations;
@@ -26,6 +27,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateDepartment([FromForm] DepartmentDTO _reqDepartment)
         {
             var dep = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqDepartment.Name);
@@ -46,6 +48,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutDepartment( int id, [FromForm] DepartmentDTO _reqDepartment)
         {
             var department = await _context.Departments.FindAsync(id);
@@ -64,6 +67,7 @@ namespace Teamspace.Controllers
 
         // DELETE: api/Departments/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteDepartment(int id)
         {
             var department = await _context.Departments.FindAsync(id);

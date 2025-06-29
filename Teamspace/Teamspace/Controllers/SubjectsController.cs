@@ -42,6 +42,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateSubject([FromForm] SubjectDTO _reqSubject)
         {
             var department = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqSubject.DepartmentName);
@@ -74,6 +75,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutSubject(int id, [FromForm] SubjectDTO _reqSubject)
         {
             var department = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqSubject.DepartmentName);
@@ -112,6 +114,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteSubject(int id)
         {
             var subject = await _context.Subjects.FindAsync(id);
