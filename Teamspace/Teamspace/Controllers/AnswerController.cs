@@ -82,29 +82,24 @@ namespace Teamspace.Controllers
                 var question = await _context.Questions.Where(q => q.Id == item.QuestionId).FirstOrDefaultAsync();
                 var ans = await _context.QuestionAnss.Where(q => q.QuestionId == item.QuestionId
                                                             && q.StudentId == item.StudentId).FirstOrDefaultAsync();
-
-
-                var questionAns = await _context.QuestionAnss.Where(q => q.QuestionId == item.QuestionId && 
-                                                                    q.StudentId == item.StudentId).FirstOrDefaultAsync();
-
+                ans.StudentAns = item.StudentAns;
 
                 if (question.Type == QuestionType.Written)
                 {
                     string model_answer = question.CorrectAns;
                     string question_title = question.Title;
-                    string cur_answer = questionAns.StudentAns;
+                    string cur_answer = item.StudentAns;
                     double grad = question.Grade;
                     int id = question.Id;
-                    var gradingResult = await _gradingService.GradeAnswerAsync(question, questionAns);
-                    questionAns.Grade += gradingResult.Grade;
-                    questionAns.reasoning = gradingResult.Reasoning;
+                    var gradingResult = await _gradingService.GradeAnswerAsync(question, ans);
+                    ans.Grade += gradingResult.Grade;
+                    ans.reasoning = gradingResult.Reasoning;
                     
                     // ai 
                 }
                 else
                 {
-                    ans.StudentAns = questionAns.StudentAns;
-                    if (questionAns.StudentAns == question.CorrectAns)
+                    if (item.StudentAns == question.CorrectAns)
                     {
                         ans.Grade = question.Grade;
                     }
