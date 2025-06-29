@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.IO;
 using Teamspace.Configurations;
 using Teamspace.DTO;
 using Teamspace.Models;
@@ -13,47 +15,62 @@ namespace Teamspace.Repositories
             _db = db;
         }
 
-        public  bool addNews([FromForm] DtoNews dtoNews)
+        public  async Task<bool> addNews(DtoNews dtoNews, int staffId)
         {
-            using var stream = new MemoryStream();
-            dtoNews.Image.CopyTo(stream);
             if (dtoNews == null) return false;
-            News news = new News { Content = dtoNews.Content,StaffId = 1, Image = stream.ToArray() };
-            _db.News.Add(news);
-            _db.SaveChanges();
+            News news = new News();
+            using var stream = new MemoryStream();
+            {
+                if(dtoNews.Image != null && dtoNews.Image.Length > 0)
+                {
+                    dtoNews.Image.CopyTo(stream);
+                    news.Image = stream.ToArray();
+                }
+            }
+            news.Title = dtoNews.Title;
+            news.Content = dtoNews.Content;
+            news.StaffId = staffId;
+            await _db.News.AddAsync(news);
+            await _db.SaveChangesAsync();
             return true;
         }
 
-        public  List<News> getAllNews()
+        public async Task<List<News>> getAllNews()
         {
-           return _db.News.ToList();
+           return await _db.News.ToListAsync();
         }
 
-        public  News getNewsById(int Id)
+        public async Task<News> getNewsById(int Id)
         {
-            var News = _db.News.FirstOrDefault(n => n.Id == Id);
+            var News = await _db.News.FirstOrDefaultAsync(n => n.Id == Id);
             return News;
         }
-        public bool DeleteNewsById(int Id)
+        public async Task<bool> DeleteNewsById(int Id)
         {
-            var News = _db.News.FirstOrDefault(n => n.Id == Id);
+            var News = await _db.News.FirstOrDefaultAsync(n => n.Id == Id);
             if (News != null)
             {
                 _db.News.Remove(News);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
                 return true;
             }
             return false;
         }
-        public  bool UpdateNews([FromForm] DtoNews dtoNews)
+        public async Task<bool> UpdateNews([FromForm] DtoNews dtoNews)
         {
-            News news = _db.News.First(s => s.Id == dtoNews.Id);
+            var news = await _db.News.FirstOrDefaultAsync(s => s.Id == dtoNews.Id);
             if (news == null) return false;
-            using var stream = new MemoryStream();
-            dtoNews.Image.CopyTo(stream);
+            using (var stream = new MemoryStream())
+            {
+                if (dtoNews.Image != null && dtoNews.Image.Length > 0)
+                {
+                    dtoNews.Image.CopyTo(stream);
+                    news.Image = stream.ToArray();
+                }
+            }
+            news.Title = dtoNews.Title;
             news.Content = dtoNews.Content;
-            news.Image = stream.ToArray();
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
             return true;
         }
     }

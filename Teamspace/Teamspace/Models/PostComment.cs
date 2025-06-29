@@ -8,7 +8,7 @@ namespace Teamspace.Models
         public int PostId { get; set; }
         public string Content { get; set; }
         public DateTime SentAt { get; set; }
-        public int CommenterId { get; set; }
+        public string CommenterName { get; set; }
 
         // relationships
         public Post Post { get; set; }

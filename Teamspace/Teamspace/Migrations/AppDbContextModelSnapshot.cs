@@ -323,6 +323,10 @@ namespace Teamspace.Migrations
                     b.Property<int>("StaffId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("StaffId");
@@ -398,7 +402,6 @@ namespace Teamspace.Migrations
                         .HasColumnType("int");
 
                     b.Property<byte[]>("Image")
-                        .IsRequired()
                         .HasColumnType("varbinary(max)");
 
                     b.Property<string>("Title")
@@ -428,8 +431,9 @@ namespace Teamspace.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CommenterId")
-                        .HasColumnType("int");
+                    b.Property<string>("CommenterName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Content")
                         .IsRequired()

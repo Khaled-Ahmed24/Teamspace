@@ -22,31 +22,47 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet("[action]")]
-        public async Task<IActionResult> GetById(int role, int id)
+        public async Task<IActionResult> GetById()
         {
 
             // role, id should be gotten from the token
-            //var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            //var email = HttpContext.User.FindFirst(ClaimTypes.Email)?.Value;
-            //var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
-
+            var id_txt = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            if(id_txt == null) return Unauthorized("Token is null, Please login and try again.");
+            int role = 2; // any role for staff
+            int id = int.Parse(id_txt);
+            if (roleClaim == "Student") role = 3;
             var user = await _profileRepo.GetById(role, id);
             if (user == null)
                 return NotFound("User not found");
             return Ok(user);
         }
         [HttpPut("[action]")]
-        public async Task<IActionResult> Update([FromQuery] int role, [FromQuery] int id, [FromForm] Profile profile)
+        public async Task<IActionResult> Update([FromForm] Profile profile)
         {
+            // role, id should be gotten from the token
+            var id_txt = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            if (id_txt == null) return Unauthorized("Token is null, Please login and try again.");
+            int role = 2; // any role for staff
+            int id = int.Parse(id_txt);
+            if (roleClaim == "Student") role = 3;
             var ok = await _profileRepo.Update(role, id, profile);
             if (ok == "Ok") return Ok("Profile updated successfully :)");  
             return BadRequest(ok);
         }
 
         [HttpPut("[action]")]
-        public async Task<IActionResult> ChangePassword([FromQuery]int id, [FromQuery] int role, Password pass)
+        public async Task<IActionResult> ChangePassword(Password pass)
         {
             // role, id should be gotten from the token
+            // role, id should be gotten from the token
+            var id_txt = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var roleClaim = HttpContext.User.FindFirst(ClaimTypes.Role)?.Value;
+            if (id_txt == null) return Unauthorized("Token is null, Please login and try again.");
+            int role = 2; // any role for staff
+            int id = int.Parse(id_txt);
+            if (roleClaim == "Student") role = 3;
             var ok = await _profileRepo.ChangePassword(id, role, pass);
             if (ok == "Ok") return Ok("Password changed successfully :)");
             else return BadRequest(ok);

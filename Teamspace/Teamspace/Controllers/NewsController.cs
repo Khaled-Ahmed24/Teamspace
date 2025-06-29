@@ -12,7 +12,6 @@ namespace Teamspace.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    //[Authorize]
 
     public class NewsController : ControllerBase
     {
@@ -24,36 +23,39 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost]
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> addNews([FromForm]DtoNews dtoNews)
         {
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
+            var id_txt = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (role != "Admin")
             {
                 return Forbid(); // 403 Forbidden
             }
-            bool ok =_newsRepo.addNews(dtoNews);
-            if (ok == false) return BadRequest();
-            return Ok();
+            int id = int.Parse(id_txt);
+            bool ok = await _newsRepo.addNews(dtoNews, id);
+            if (ok == false) return BadRequest("There is a problem occured while adding news, Please try again");
+            return Ok("New added successfully");
         }
-        [HttpGet]
 
+        [HttpGet]
+        [Authorize]
         public async Task<IActionResult> getAllNews()
         {
-            return Ok(_newsRepo.getAllNews());
+            return Ok(await _newsRepo.getAllNews());
         }
-        [HttpGet("id")]
 
+        [HttpGet("id")]
+        [Authorize]
         public async Task<IActionResult> getNewsById(int Id)
         {
-            var News = _newsRepo.getNewsById(Id);
+            var News = await _newsRepo.getNewsById(Id);
             if (News == null) return NotFound();
             return Ok(News);
         }
 
         [HttpDelete("id")]
-
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteNewsById(int Id)
         {
 
@@ -63,12 +65,13 @@ namespace Teamspace.Controllers
             {
                 return Forbid(); // 403 Forbidden
             }
-            bool ok = _newsRepo.DeleteNewsById(Id);
-            if (ok == true) return Ok();
-            return NotFound();
+            bool ok = await _newsRepo.DeleteNewsById(Id);
+            if (ok == true) return Ok("New deleted successfully");
+            return NotFound("This new not found");
         }
 
         [HttpPut]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateNews([FromForm] DtoNews dtoNews)
         {
 
@@ -79,9 +82,9 @@ namespace Teamspace.Controllers
                 return Forbid(); // 403 Forbidden
             }
             if (dtoNews == null) return BadRequest();
-            bool ok = _newsRepo.UpdateNews(dtoNews);
-            if (ok == true) return Ok();
-            return NotFound();
+            bool ok = await _newsRepo.UpdateNews(dtoNews);
+            if (ok == true) return Ok("New updated successfully");
+            return NotFound("This new does not exist");
         }
     }
 }

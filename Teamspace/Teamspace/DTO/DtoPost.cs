@@ -1,4 +1,6 @@
-﻿namespace Teamspace.DTO
+﻿using Teamspace.Attributes;
+
+namespace Teamspace.DTO
 {
     public class DtoPost
     {
@@ -13,9 +15,9 @@
         public string Title { get; set; }
         public string Content { get; set; }
 
-        public IFormFile Image { get; set; }
+        [AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png" })]
+        public IFormFile? Image { get; set; }
 
-        //foreign key
 
     }
 }

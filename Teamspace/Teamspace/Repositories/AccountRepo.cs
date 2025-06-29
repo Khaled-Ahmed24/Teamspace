@@ -285,11 +285,11 @@ namespace Teamspace.Repositories
         {
             var students = _db.Students
                 .Where(s => s.Email == email)
-                .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = Role.Student });
+                .Select(s => new { Id = s.Id, Name = s.Name, Email = s.Email, Password = s.Password, Role = Role.Student });
 
             var staff = _db.Staffs
                 .Where(s => s.Email == email)
-                .Select(s => new { Id = s.Id, Email = s.Email, Password = s.Password, Role = s.Role });
+                .Select(s => new { Id = s.Id, Name = s.Name, Email = s.Email, Password = s.Password, Role = s.Role });
 
             return await students.Union(staff).FirstOrDefaultAsync();
         }
