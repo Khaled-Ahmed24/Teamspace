@@ -35,7 +35,7 @@ namespace Teamspace.Controllers
 
             if (course == null)
             {
-                return NotFound();
+                return NotFound("There is no course with this Id");
             }
 
             return Ok(course);
@@ -50,7 +50,7 @@ namespace Teamspace.Controllers
             var subject = _context.Subjects.FirstOrDefault(s=> s.Name == _reqCourse.SubjectName);
             if (subject == null)
             {
-                return NotFound();
+                return BadRequest("There is no subject with this Name");
             }
 
             Course course = new Course();
@@ -85,10 +85,11 @@ namespace Teamspace.Controllers
         public async Task<IActionResult> PutCourse(int id, [FromForm] CourseDTO _reqCourse)
         {
             var course = await _context.Courses.FindAsync(id);
+            if (course == null) { return NotFound("There is no course with this Id"); }
             var subject = _context.Subjects.FirstOrDefault(s => s.Name == _reqCourse.SubjectName);
-            if (id != course.Id || subject == null)
+            if (subject == null)
             {
-                return BadRequest();
+                return BadRequest("There is no subject with this Name");
             }
 
             course.SubjectId = subject.Id;
@@ -113,19 +114,14 @@ namespace Teamspace.Controllers
             }
             await _context.SaveChangesAsync();
             return NoContent();
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetCourses", "Courses");
-            return RedirectPermanent(newUrl);
+            
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCourse(int id)
         {
             var course = await _context.Courses.FindAsync(id);
-            if (course == null)
-            {
-                return NotFound();
-            }
+            if (course == null) { return NotFound("There is no course with this Id"); }
 
             _context.Courses.Remove(course);
             await _context.SaveChangesAsync();

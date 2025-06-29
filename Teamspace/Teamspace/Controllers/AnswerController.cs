@@ -184,6 +184,20 @@ namespace Teamspace.Controllers
         //    return NoContent();
         //}
 
+        [HttpGet]
+        public async Task<IActionResult> EditQuestionAnsGrade(int studentId, int questionId, double grade)
+        {
+            var questionAns = await _context.QuestionAnss.Where(q=> q.StudentId == studentId && q.QuestionId == questionId).FirstOrDefaultAsync();
+            if (questionAns == null)
+            {
+                return NotFound("there is no answer for this student on this question");
+            }
+            questionAns.Grade = grade;
+            _context.Entry(questionAns).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+
 
         private async Task<List<QuestionAns>> GetStudentExamAnswers(int examId, int studentId)
         {
@@ -195,6 +209,10 @@ namespace Teamspace.Controllers
                                 && question_ans.StudentId == studentId
                           select question_ans).ToListAsync();
         }
+
+
+
+
 
 
         ///////////////////////Assignment///////////////////////////////////////

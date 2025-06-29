@@ -31,7 +31,7 @@ namespace Teamspace.Controllers
             var dep = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqDepartment.Name);
             if (dep != null)
             {
-                return BadRequest("This department already exist");
+                return BadRequest("This department Name already exist");
             }
             Department department = new Department();
             department.Name = _reqDepartment.Name;
@@ -51,18 +51,14 @@ namespace Teamspace.Controllers
             var department = await _context.Departments.FindAsync(id);
             if (department == null)
             {
-                return BadRequest();
+                return NotFound("This department not exist");
             }
             department.Name = _reqDepartment.Name;
             _context.Entry(department).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
-            /*
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetDepartments", "Departments");
-            return RedirectPermanent(newUrl);
-            */
+           
         }
 
 
@@ -73,17 +69,13 @@ namespace Teamspace.Controllers
             var department = await _context.Departments.FindAsync(id);
             if (department == null)
             {
-                return BadRequest();
+                return NotFound("This department not exist");
             }
 
             _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
 
-           // return NoContent();
-            
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetDepartments", "Departments");
-            return RedirectPermanent(newUrl);
+           return NoContent();
             
         }
     }
