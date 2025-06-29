@@ -64,7 +64,8 @@ namespace Teamspace.Controllers
             return NotFound();
         }
 
-
+        // هل محتاجينها؟
+        /*
         [HttpPut]
 
         public async Task<IActionResult> UpdateMaterial([FromForm] DtoMaterials dtoMaterials)
@@ -73,6 +74,7 @@ namespace Teamspace.Controllers
             if (ok == true) return Ok();
             return NotFound();
         }
+        */
     }
 }
 

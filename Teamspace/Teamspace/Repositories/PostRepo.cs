@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Teamspace.Configurations;
 using Teamspace.DTO;
@@ -7,7 +8,6 @@ using Teamspace.Models;
 
 namespace Teamspace.Repositories
 {
-    [Authorize]
     public class PostRepo
     {
         private AppDbContext _db;
@@ -16,62 +16,79 @@ namespace Teamspace.Repositories
             _db = db;
         }
 
-        public bool addPost([FromForm] DtoPost dtoPost)
+        public async Task<bool> addPost(DtoPost dtoPost)
         {
-            using var stream = new MemoryStream();
-            dtoPost.Image.CopyTo(stream);
             if (dtoPost == null) return false;
-            Post Post = new Post {Title=dtoPost.Title ,Content = dtoPost.Content,Image = stream.ToArray()
-              ,CourseId=dtoPost.CourseId,UploadedAt= DateTime.Now, staffId=dtoPost.staffId};
-            Console.WriteLine(dtoPost.staffId);
-            _db.Posts.Add(Post);
-            _db.SaveChanges();
+            Post Post = new Post();
+            using (var stream = new MemoryStream())
+            {
+                if(dtoPost.Image != null && dtoPost.Image.Length > 0)
+                {
+                    dtoPost.Image.CopyTo(stream);
+                    Post.Image = stream.ToArray();
+                }
+            }
+            Post.Title = dtoPost.Title;
+            Post.Content = dtoPost.Content;
+            Post.UploadedAt = DateTime.Now;
+            Post.staffId = dtoPost.staffId;
+            Post.CourseId = dtoPost.CourseId;
+            //Console.WriteLine(dtoPost.staffId);
+            await _db.Posts.AddAsync(Post);
+            await _db.SaveChangesAsync();
             return true;
         }
 
-        public List<Post> getAllPosts(int courseId)
+        public async Task<List<Post>> getAllPosts(int courseId)
         {
 
-            return _db.Posts.Where(s=>s.CourseId == courseId).ToList();
+            return await _db.Posts.Where(s=>s.CourseId == courseId).ToListAsync();
 
         }
         //updatedate here
-        public Post getPostById(int id)
+        public async Task<Post> getPostById(int id)
         {
-           
-            var post = _db.Posts.FirstOrDefault(p=>p.Id == id);
+            var post = await _db.Posts.FirstOrDefaultAsync(p=>p.Id == id);
             return post;
         }
        // updatedate here
-       public bool DeletePostById(int postId)
+       public async Task<bool> DeletePostById(int postId)
        {
-           var Post = _db.Posts.FirstOrDefault(n => n.Id == postId);
-            if (Post != null)
+           var Post = await _db.Posts.FirstOrDefaultAsync(n => n.Id == postId);
+           if (Post != null)
            {
+                // what about delete post comments?
                _db.Posts.Remove(Post);
-               _db.SaveChanges();
+               await _db.SaveChangesAsync();
                return true;
            }
            return false;
        }
         //updatedate here
-        public bool UpdatePost([FromForm] DtoPost dtoPost)
+        public async Task<bool> UpdatePost(DtoPost dtoPost)
         {
-            Post post = _db.Posts.First(s => s.Id == dtoPost.Id);
+            var post = await _db.Posts.FirstOrDefaultAsync(s => s.Id == dtoPost.Id);
             if (post == null) return false;
-            using var stream = new MemoryStream();
-            dtoPost.Image.CopyTo(stream);
-            post.Content = dtoPost.Content;
+            using (var stream = new MemoryStream())
+            {
+                if (dtoPost.Image != null && dtoPost.Image.Length > 0)
+                {
+                    dtoPost.Image.CopyTo(stream);
+                    post.Image = stream.ToArray();
+                }
+            }
             post.Title = dtoPost.Title;
-            post.CourseId = 1;
-            post.Image = stream.ToArray();   
-            _db.SaveChanges();
+            post.Content = dtoPost.Content;
+            post.staffId = dtoPost.staffId;
+            post.CourseId = dtoPost.CourseId;
+            
+            await _db.SaveChangesAsync();
             return true;
         }
 
         // comment
 
-        public bool addComment([FromForm] DtoComment dtoComment)
+        public async Task<bool> addComment(string commenterName, DtoComment dtoComment)
         {
             if (dtoComment == null) return false;
 
@@ -80,18 +97,18 @@ namespace Teamspace.Repositories
                 PostId = dtoComment.PostId,
                 Content = dtoComment.Content,
                 SentAt = DateTime.Now,
-                CommenterId = dtoComment.CommenterId,
+                CommenterName = commenterName
             };
            // Console.WriteLine(comment.UploadedAt + "&&&&&&&&&&&&\n");
-            _db.PostComments.Add(comment);
-            _db.SaveChanges();
+            await _db.PostComments.AddAsync(comment);
+            await _db.SaveChangesAsync();
             return true;
         }
         // updateDate here
-        public List<PostComment> getAllComments(int postId)
+        public async Task<List<PostComment>> getAllComments(int postId)
         {
-            return _db.PostComments.
-                Where(s => s.PostId == postId).ToList();
+            return await _db.PostComments.
+                Where(s => s.PostId == postId).ToListAsync();
         }
     }
 

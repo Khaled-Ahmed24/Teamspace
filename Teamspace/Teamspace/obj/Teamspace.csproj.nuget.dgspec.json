@@ -57,11 +57,11 @@
             },
             "EPPlus": {
               "target": "Package",
-              "version": "[7.6.0, )"
+              "version": "[8.0.6, )"
             },
             "JWT": {
               "target": "Package",
-              "version": "[8.0.0, )"
+              "version": "[11.0.0, )"
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
@@ -85,10 +85,6 @@
               "target": "Package",
               "version": "[8.0.13, )"
             },
-            "Microsoft.IdentityModel.Tokens": {
-              "target": "Package",
-              "version": "[8.12.1, )"
-            },
             "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
               "target": "Package",
               "version": "[8.0.7, )"
@@ -96,6 +92,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[6.6.2, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.12.1, )"
             }
           },
           "imports": [

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Teamspace.Attributes;
 using Teamspace.Models;
 
 namespace Teamspace.DTO
@@ -23,6 +24,7 @@ namespace Teamspace.DTO
         public int Year { get; set; }
 
         // image
+        [AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png" })]
         public IFormFile? Image { get; set; }
         public int? DepartmentId { get; set; }
     }

@@ -23,12 +23,11 @@ builder.Services.AddScoped<MaterialsRepo>();
 builder.Services.AddScoped<PostRepo>();
 builder.Services.AddScoped<QuestionRepo>();
 
-builder.Services.AddControllers();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 // prepare JWT authentication
 builder.Services.AddAuthentication(options =>
 {
@@ -42,34 +41,23 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidIssuer = builder.Configuration["JWT:Issuer"],
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = 
-        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecritKey"])),
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        IssuerSigningKey =
+        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecritKey"])),
     };
 });
 
-/*
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend", policy =>
-    {
-        policy.WithOrigins("http://localhost:5173") // Frontend URL
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
-*/
 
 
-//for real-time
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
              .WithOrigins("http://localhost:5173", "http://localhost:8080", "https://localhost:44395") // عدّل حسب الحاجة
+
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials(); // مهم جدًا لـ SignalR
@@ -95,9 +83,11 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseRouting();
-app.UseHttpsRedirection();
 
 app.UseCors("AllowFrontend");
+app.UseHttpsRedirection();
+app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

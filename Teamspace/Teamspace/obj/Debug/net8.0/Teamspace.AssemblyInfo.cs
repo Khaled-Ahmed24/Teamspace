@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Teamspace")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bf9e47957d7692dc7fa4fabe820af42aa2d63c89")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4c13297cfbf9dc02d4d9a13e4884361198dc7be5")]
 [assembly: System.Reflection.AssemblyProductAttribute("Teamspace")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Teamspace")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

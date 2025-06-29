@@ -34,6 +34,7 @@ namespace Teamspace.Controllers
         }
 
 
+
         [HttpGet("[action]")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAllByRole(int role)
@@ -129,12 +130,12 @@ namespace Teamspace.Controllers
             var user = await _accountRepo.GetByEmail(UserFromRequest.Email);
             if (user != null)
             {
-                /*BCrypt.Net.BCrypt.Verify(UserFromRequest.Password, user.Password)*/
-                if (UserFromRequest.Password == user.Password)
+                if (user.Password == UserFromRequest.Password)
                 {
                     // Claims
                     List<Claim> UserClaims = new List<Claim>();
                     UserClaims.Add(new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()));
+                    UserClaims.Add(new Claim(ClaimTypes.Name, user.Name));
                     UserClaims.Add(new Claim(ClaimTypes.Email, user.Email));
                     UserClaims.Add(new Claim(ClaimTypes.Role, user.Role.ToString()));
                     UserClaims.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
