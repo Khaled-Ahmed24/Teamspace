@@ -23,7 +23,7 @@ namespace Teamspace.Repositories
             {
                 if(dtoNews.Image != null && dtoNews.Image.Length > 0)
                 {
-                    dtoNews.Image.CopyTo(stream);
+                    await dtoNews.Image.CopyToAsync(stream);
                     news.Image = stream.ToArray();
                 }
             }
@@ -40,7 +40,7 @@ namespace Teamspace.Repositories
            return await _db.News.ToListAsync();
         }
 
-        public async Task<News> getNewsById(int Id)
+        public async Task<News?> getNewsById(int Id)
         {
             var News = await _db.News.FirstOrDefaultAsync(n => n.Id == Id);
             return News;
@@ -64,7 +64,7 @@ namespace Teamspace.Repositories
             {
                 if (dtoNews.Image != null && dtoNews.Image.Length > 0)
                 {
-                    dtoNews.Image.CopyTo(stream);
+                    await dtoNews.Image.CopyToAsync(stream);
                     news.Image = stream.ToArray();
                 }
             }
@@ -72,6 +72,31 @@ namespace Teamspace.Repositories
             news.Content = dtoNews.Content;
             await _db.SaveChangesAsync();
             return true;
+        }
+
+        // comment
+
+        public async Task<bool> addComment(string commenterName, DtoComment dtoComment)
+        {
+            if (dtoComment == null) return false;
+
+            NewsComment comment = new NewsComment
+            {
+                NewsId = dtoComment.PostId,
+                Content = dtoComment.Content,
+                SentAt = DateTime.Now,
+                CommenterName = commenterName
+            };
+            // Console.WriteLine(comment.UploadedAt + "&&&&&&&&&&&&\n");
+            await _db.NewsComments.AddAsync(comment);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+        // updateDate here
+        public async Task<List<NewsComment>> getAllComments(int newsId)
+        {
+            return await _db.NewsComments.
+                Where(s => s.NewsId == newsId).ToListAsync();
         }
     }
 }

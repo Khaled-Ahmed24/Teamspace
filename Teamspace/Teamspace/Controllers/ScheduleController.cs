@@ -25,7 +25,7 @@ namespace Teamspace.Controllers
                 .FirstOrDefaultAsync(s => s.StaffId == staffId);
 
             if (schedule == null)
-                return NotFound();
+                return NotFound("This Schedule does not exist.");
 
             return Ok(schedule.ScheduleData);
         }
@@ -35,13 +35,12 @@ namespace Teamspace.Controllers
             var schedule = await _context.DoctorSchedules
                 .FirstOrDefaultAsync(s => s.StaffId == staffId);
 
-            if (schedule == null)
-                return NotFound();
+            if (schedule == null) return NotFound("This Schedule does not exist.");
 
             schedule.ScheduleData = newSchedule.ToString();
             await _context.SaveChangesAsync();
 
-            return Ok();
+            return Ok("Schedule updated Successfully.");
         }
 
 
@@ -55,10 +54,7 @@ namespace Teamspace.Controllers
         public async Task<ActionResult<LevelSchedule>> Get(int departmentId, int level)
         {
             var schedule = await _context.LevelSchedules.FindAsync(departmentId, level);
-            if (schedule == null)
-            {
-                return NotFound();
-            }
+            if (schedule == null) return NotFound("This Schedule does not exist.");
             return schedule;
         }
 
@@ -71,7 +67,7 @@ namespace Teamspace.Controllers
                 ScheduleData = dtoLevelSchedule.ScheduleData,
                 DepartmentId = dtoLevelSchedule.DepartmentId
             };
-            _context.LevelSchedules.Add(levelSchedule);
+            await _context.LevelSchedules.AddAsync(levelSchedule);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(Get), new { departmentId = levelSchedule.DepartmentId, level = levelSchedule.Level }, levelSchedule);
@@ -85,10 +81,8 @@ namespace Teamspace.Controllers
                 return BadRequest("Composite key mismatch.");
             }
             var schedule = await _context.LevelSchedules.FindAsync(departmentId, level);
-              if (schedule == null)
-                {
-                    return NotFound();
-                }
+              
+            if (schedule == null) return NotFound("This Schedule does not exist.");
 
             schedule.ScheduleData = updated.ScheduleData;
 
@@ -110,10 +104,7 @@ namespace Teamspace.Controllers
         public async Task<IActionResult> Delete(int departmentId, int level)
         {
             var schedule = await _context.LevelSchedules.FindAsync(departmentId, level);
-            if (schedule == null)
-            {
-                return NotFound();
-            }
+            if (schedule == null) return NotFound("This Schedule does not exist.");
 
             _context.LevelSchedules.Remove(schedule);
             await _context.SaveChangesAsync();

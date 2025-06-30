@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Razor.Infrastructure;
@@ -28,19 +26,16 @@ namespace Teamspace.Controllers
         [HttpPost]
         public async Task<IActionResult> addMaterials([FromForm] DtoMaterials dtoMaterials)
         {
-            bool ok = _materialsRepo.addMaterials(dtoMaterials);
-            Console.WriteLine(ok + "*************\n");
-            if (ok == false) return BadRequest();
+            bool ok = await _materialsRepo.addMaterials(dtoMaterials);
+            //Console.WriteLine(ok + "*************\n");
+            if (ok == false) return BadRequest("No files provided");
             return Ok();
         }
-        [HttpGet("getAllMaterials/{courseId}")]
+        [HttpGet("getAllMaterials/{courseId:int}")]
 
-        public async Task<IActionResult> getAllMaterials(string p)
+        public async Task<IActionResult> getAllMaterials(int courseId)
         {
-
-            if (string.IsNullOrEmpty(p) || !int.TryParse(p, out int courseId))
-                return BadRequest("Invalid or missing course ID");
-            var materials = _materialsRepo.getAllMaterials(courseId);
+            var materials = await _materialsRepo.getAllMaterials(courseId);
             return Ok(materials);
         }
 
@@ -48,10 +43,10 @@ namespace Teamspace.Controllers
 
         public async Task<IActionResult> getMaterialById(int id)
         {
-            var temp = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            Console.WriteLine(temp + "********\n");
-            var material = _materialsRepo.getMaterialById(id);
-            if (material == null) return NotFound();
+            //var temp = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            //Console.WriteLine(temp + "********\n");
+            var material = await _materialsRepo.getMaterialById(id);
+            if (material == null) return NotFound("This material does not exist.");
             return Ok(material);
         }
 
@@ -59,9 +54,9 @@ namespace Teamspace.Controllers
 
         public async Task<IActionResult> DeleteMaterialById(int id)
         {
-            bool ok = _materialsRepo.DeleteMaterialById(id);
+            bool ok = await _materialsRepo.DeleteMaterialById(id);
             if (ok == true) return Ok();
-            return NotFound();
+            return NotFound("This material does not exist to delete");
         }
 
         // هل محتاجينها؟

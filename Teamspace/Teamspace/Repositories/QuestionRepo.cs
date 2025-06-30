@@ -16,6 +16,8 @@ namespace Teamspace.Repositories
 
         public async Task<List<Question>> GetAll(int ExamId)
         {
+            var exam = await _db.Exams.Where(e => e.Id == ExamId).FirstOrDefaultAsync();
+            if(exam == null) return new List<Question>();
             return await _db.Questions
                 .Where(q => q.ExamId == ExamId)
                 .Select(q => new Question
@@ -35,7 +37,7 @@ namespace Teamspace.Repositories
                 }).ToListAsync();
         }
 
-        public async Task<Question> GetById(int QuestionId)
+        public async Task<Question?> GetById(int QuestionId)
         {
             return await _db.Questions
                 .Where(q => q.Id == QuestionId)
@@ -68,13 +70,19 @@ namespace Teamspace.Repositories
             };
             using (var stream = new MemoryStream())
             {
-                await question.File.CopyToAsync(stream);
-                q.File = stream.ToArray();
+                if (question.File != null && question.File.Length > 0)
+                {
+                    await question.File.CopyToAsync(stream);
+                    q.File = stream.ToArray();
+                }
             }
             using (var stream = new MemoryStream())
             {
-                await question.Image.CopyToAsync(stream);
-                q.Image = stream.ToArray();
+                if(question.Image != null && question.Image.Length > 0)
+                {
+                    await question.Image.CopyToAsync(stream);
+                    q.Image = stream.ToArray();
+                }
             }
             await _db.Questions.AddAsync(q);
             await Save();
@@ -103,13 +111,19 @@ namespace Teamspace.Repositories
             q.Grade = question.Grade;
             using(var stream = new MemoryStream())
             {
-                await question.File.CopyToAsync(stream);
-                q.File = stream.ToArray();
+                if(question.File != null && question.File.Length > 0)
+                {
+                    await question.File.CopyToAsync(stream);
+                    q.File = stream.ToArray();
+                }  
             }
             using (var stream = new MemoryStream())
             {
-                await question.Image.CopyToAsync(stream);
-                q.Image = stream.ToArray();
+                if(question.Image != null && question.Image.Length > 0)
+                {
+                    await question.Image.CopyToAsync(stream);
+                    q.Image = stream.ToArray();
+                }
             }
             var cur_choices = await _db.Choices.Where(c => c.QuestionId == q.Id).ToListAsync();
             foreach(var choice in question.Choices)

@@ -214,27 +214,21 @@ namespace Teamspace.Controllers
             List <int> questions_ids = new List<int>(); 
             foreach (var answer in answers)
             {
-                if (answer.File == null || answer.File.Length == 0)
-                {
-                    questions_ids.Add(answer.QuestionId);
-                    continue;
-                }
                 var ans = new AssignmentAns();
                 using (var stream = new MemoryStream())
                 {
-                    await answer.File.CopyToAsync(stream);
-                    ans.StudentId = answer.StudentId;
-                    ans.QuestionId = answer.QuestionId;
-                    ans.File = stream.ToArray();
+                    if(answer.File != null && answer.File.Length > 0)
+                    {
+                        await answer.File.CopyToAsync(stream);
+                        ans.StudentId = answer.StudentId;
+                        ans.QuestionId = answer.QuestionId;
+                        ans.File = stream.ToArray();
+                    }
                 }
                 await _context.AddAsync(ans);
             }
-            if (questions_ids.Count == 0)
-            {
-                await _context.SaveChangesAsync();
-                return Ok("Answer is added successfully");
-            }
-            return BadRequest(new { questions_ids, error = "File is required" });
+            await _context.SaveChangesAsync();
+            return Ok("Answer is added successfully");
         }
 
         ///Get assignment answer/////////
@@ -243,7 +237,6 @@ namespace Teamspace.Controllers
         {
             var ans = await _context.AssignmentAnss.FirstOrDefaultAsync(a => a.StudentId == studentId && a.QuestionId == questionId);
             return Ok(ans);
-
         }
 
         //// Get all answers/////////

@@ -23,7 +23,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> addNews([FromForm]DtoNews dtoNews)
         {
             var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
@@ -39,14 +39,14 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> getAllNews()
         {
             return Ok(await _newsRepo.getAllNews());
         }
 
         [HttpGet("id")]
-        [Authorize]
+        //[Authorize]
         public async Task<IActionResult> getNewsById(int Id)
         {
             var News = await _newsRepo.getNewsById(Id);
@@ -55,7 +55,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpDelete("id")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteNewsById(int Id)
         {
 
@@ -71,20 +71,33 @@ namespace Teamspace.Controllers
         }
 
         [HttpPut]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateNews([FromForm] DtoNews dtoNews)
         {
-
-            var role = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
-
-            if (role != "Admin")
-            {
-                return Forbid(); // 403 Forbidden
-            }
             if (dtoNews == null) return BadRequest();
             bool ok = await _newsRepo.UpdateNews(dtoNews);
             if (ok == true) return Ok("New updated successfully");
             return NotFound("This new does not exist");
+        }
+
+
+
+        // comment
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> addComment([FromForm] DtoComment dtoComment)
+        {
+            var name = User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
+            if (name == null) return Unauthorized("You must be logged in to comment.");
+            bool ok = await _newsRepo.addComment(name, dtoComment);
+            if (ok == false) return BadRequest();
+            return Ok();
+        }
+
+        [HttpGet("[action]")]
+        public async Task<IActionResult> getAllComments(int newsId)
+        {
+            return Ok(await _newsRepo.getAllComments(newsId));
         }
     }
 }

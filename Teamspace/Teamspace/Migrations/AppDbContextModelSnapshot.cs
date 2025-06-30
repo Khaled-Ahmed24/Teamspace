@@ -345,7 +345,10 @@ namespace Teamspace.Migrations
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CommenterId")
+                    b.Property<int>("CommenterName")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Id")
                         .HasColumnType("int");
 
                     b.HasKey("NewsId", "Content", "SentAt");

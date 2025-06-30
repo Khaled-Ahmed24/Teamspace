@@ -23,7 +23,7 @@ namespace Teamspace.Controllers
             var questions = await _questionRepo.GetAll(examId);
             if (questions != null && questions.Count > 0)
                 return Ok(questions);
-            return NotFound("No questions found.");
+            return NotFound("May be no questions found or this exam does not exist");
         }
         [HttpGet("[action]")]
         public async Task<IActionResult> GetById([FromQuery] int questionId, [FromQuery] int examId)

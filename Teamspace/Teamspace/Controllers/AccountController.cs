@@ -30,7 +30,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> GetAllByRole(int role)
         {
             var id = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -52,7 +52,7 @@ namespace Teamspace.Controllers
 
 
         [HttpGet("[action]")]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> GetById(int role, int id)
         {
             if (role == 3)
@@ -70,6 +70,19 @@ namespace Teamspace.Controllers
                 return NotFound("Staff not found :(");
             }
             return BadRequest("Invalid role please ensure you select a valid role :)");
+        }
+        [HttpGet("[action]")]
+        [Authorize]
+        public async Task<IActionResult> GetAllStudentsByYear(int year)
+        {
+            return Ok(await _accountRepo.GetAllStudentsByYear(year));
+        }
+
+        [HttpGet("[action]")]
+        [Authorize]
+        public async Task<IActionResult> GetAllStudentsByDepartment(string department)
+        {
+            return Ok(await _accountRepo.GetAllStudentsByDepartment(department));
         }
 
 

@@ -79,12 +79,7 @@ namespace Teamspace.Controllers
             _context.Departments.Remove(department);
             await _context.SaveChangesAsync();
 
-           // return NoContent();
-            
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetDepartments", "Departments");
-            return RedirectPermanent(newUrl);
-            
+            return NoContent();
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Teamspace.Repositories
             {
                 if(dtoPost.Image != null && dtoPost.Image.Length > 0)
                 {
-                    dtoPost.Image.CopyTo(stream);
+                    await dtoPost.Image.CopyToAsync(stream);
                     Post.Image = stream.ToArray();
                 }
             }
@@ -46,7 +46,7 @@ namespace Teamspace.Repositories
 
         }
         //updatedate here
-        public async Task<Post> getPostById(int id)
+        public async Task<Post?> getPostById(int id)
         {
             var post = await _db.Posts.FirstOrDefaultAsync(p=>p.Id == id);
             return post;
@@ -73,7 +73,7 @@ namespace Teamspace.Repositories
             {
                 if (dtoPost.Image != null && dtoPost.Image.Length > 0)
                 {
-                    dtoPost.Image.CopyTo(stream);
+                    await dtoPost.Image.CopyToAsync(stream);
                     post.Image = stream.ToArray();
                 }
             }

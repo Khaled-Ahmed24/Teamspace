@@ -34,7 +34,7 @@ namespace Teamspace.Repositories
             return staffs;
         }
 
-        public async Task<Student> GetStudentById(int id)
+        public async Task<Student?> GetStudentById(int id)
         {
             var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == id);
             return student;
@@ -43,13 +43,25 @@ namespace Teamspace.Repositories
 
 
 
-        public async Task<Staff> GetStaffById(int id)
+        public async Task<Staff?> GetStaffById(int id)
         {
             var staff = await _db.Staffs.FirstOrDefaultAsync(s => s.Id == id);
             return staff;
         }
 
+        public async Task<List<Student>> GetAllStudentsByYear(int year)
+        {
+            var students = await _db.Students.Where(s => s.Year == year).ToListAsync();
+            return students;
+        }
 
+        public async Task<List<Student>> GetAllStudentsByDepartment(string department)
+        {
+            var dept = _db.Departments.FirstOrDefaultAsync(d => d.Name == department);
+            if(dept == null) return new List<Student>();
+            var students = await _db.Students.Where(s => s.DepartmentId == dept.Id).ToListAsync();
+            return students;
+        }
 
         public async Task<string> Add(int role, Account account)
         {
@@ -137,7 +149,7 @@ namespace Teamspace.Repositories
             var Errors = new List<ExcelErrorDTO>();
             if (file == null || file.ExcelFile.Length == 0)
             {
-                var RowErrors = new List<string>();
+                var RowErrors = new List<string?>();
                 RowErrors.Add(
                     "File is empty, Please upload a valid Excel file."
                 );
@@ -155,7 +167,7 @@ namespace Teamspace.Repositories
                     for (int i = 2; i <= rows; i++)
                     {
                         if (IsRowEmpty(worksheet, i, 9)) continue;
-                        var RowErrors = new List<string>();
+                        var RowErrors = new List<string?>();
                         var account = new Account{
                             FirstName = worksheet.Cells[i, 1].Text.Trim(),
                             LastName = worksheet.Cells[i, 2].Text.Trim(),
@@ -182,7 +194,7 @@ namespace Teamspace.Repositories
                         var deptName = worksheet.Cells[i, 8].Text.Trim();
                         var dept = await _db.Departments.Where(d => d.Name == deptName)
                             .FirstOrDefaultAsync();
-                        account.DepartmentId = dept.Id;
+                        if(dept != null) account.DepartmentId = dept.Id;
 
                         // validation using data annotation
                         var validationContext = new ValidationContext(account, null, null);
@@ -191,7 +203,7 @@ namespace Teamspace.Repositories
                         if (!isValid)
                         {
                             var errs = validationResults.Select(r => r.ErrorMessage).ToList();
-                            foreach (var err in errs) RowErrors.Add(err);
+                            foreach (var err in errs) if(err != null)RowErrors.Add(err);
                         }
                         if(RowErrors.Count > 0)
                         {
