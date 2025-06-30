@@ -1,4 +1,4 @@
-﻿namespace Teamspace.Models
+﻿    namespace Teamspace.Models
 {
     public class Department
     {

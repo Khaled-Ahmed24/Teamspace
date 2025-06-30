@@ -31,7 +31,7 @@ namespace Teamspace.Controllers
                 var dept = _context.Departments.Where(d => d.Id == sub.DepartmentId).FirstOrDefault();
                 data.Add(new SubjectDTO
                 {
-                    Id = sub.Id,
+                    //Id = sub.Id,
                     Name = sub.Name,
                     DepartmentName = dept.Name,
                     DependentId = sub.DependentId,
@@ -42,14 +42,20 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateSubject([FromForm] SubjectDTO _reqSubject)
         {
-            var department = await _context.Departments.FirstOrDefaultAsync(d=> d.Name ==  _reqSubject.DepartmentName);
+            var department = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqSubject.DepartmentName);
+            if (department == null)
+            {
+                return NotFound("There is no department with this name");
+            } 
+
             // NO 2 subject have the same names 
             int existSubjects = await _context.Subjects.CountAsync(s => s.Name == _reqSubject.Name);
-            if (department == null || existSubjects > 0)
+            if (existSubjects > 0)
             {
-                return BadRequest();
+                return BadRequest("there is a subject with this name");
             }
 
             var subject = new Subject();
@@ -60,6 +66,7 @@ namespace Teamspace.Controllers
             subject.DependentId = _reqSubject.DependentId;
             _context.Subjects.Add(subject);
             await _context.SaveChangesAsync();
+            
 
             // Redirect with 301 Status code to GetDepartments
             string newUrl = Url.Action("GetSubjects", "Subjects");
@@ -68,16 +75,20 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutSubject(int id, [FromForm] SubjectDTO _reqSubject)
         {
             var department = await _context.Departments.FirstOrDefaultAsync(d => d.Name == _reqSubject.DepartmentName);
-            var subject = await _context.Subjects.FindAsync(id);
-            if (department == null || subject == null)
+            if (department == null)
             {
-                return BadRequest();
+                return NotFound("There is no department with this name");
             }
-
             // NO 2 subject have the same names 
+            var subject = await _context.Subjects.FindAsync(id);
+            if (subject != null)
+            {
+                return BadRequest("there is no subject with this Id");
+            }
             int existSubjects = await _context.Subjects.CountAsync(s => s.Name == _reqSubject.Name);
             if (_reqSubject.Name == subject.Name)
             {
@@ -87,7 +98,7 @@ namespace Teamspace.Controllers
             else
             {
                 // change the name of the current subject
-                if (existSubjects > 0) return BadRequest();
+                if (existSubjects > 0) return BadRequest("there is a subject with this name");
             }
 
             subject.Name = _reqSubject.Name;
@@ -99,31 +110,24 @@ namespace Teamspace.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
-            /*
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetDepartments", "Departments");
-            return RedirectPermanent(newUrl);
-            */
+            
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteSubject(int id)
         {
             var subject = await _context.Subjects.FindAsync(id);
             if (subject == null)
             {
-                return BadRequest();
+                return NotFound("there is no subject with this Id");
             }
 
             _context.Subjects.Remove(subject);
             await _context.SaveChangesAsync();
 
             return NoContent();
-            /*
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetDepartments", "Departments");
-            return RedirectPermanent(newUrl);
-            */
+            
         }
     }
 }

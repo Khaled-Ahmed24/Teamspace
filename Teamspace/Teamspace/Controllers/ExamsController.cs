@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,7 @@ namespace Teamspace.Controllers
 
         // GET: api/Exams
         [HttpGet]
+        [Authorize(Roles = "Professor,TA")]
         // my all exams
         public async Task<ActionResult<IEnumerable<Exam>>> GetMyExams()
         {
@@ -42,9 +44,16 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Professor,TA")]
         // all exams for specific Course
         public async Task<ActionResult<IEnumerable<ExamDTO>>> GetCourseExams(int id)
         {
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var registeration = await _context.Registerations.Where(r => r.StaffId == StaffId && r.CourseId == id).FirstOrDefaultAsync();
+            if (registeration == null)
+            {
+                return Unauthorized("Yor aren't a member of this course");
+            }
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
             {
@@ -72,16 +81,23 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Professor,TA")]
 
         // my all exams for specific Course
         public async Task<ActionResult<IEnumerable<Exam>>> GetMyCourseExams(int id)// id for Course
         {
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var registeration = await _context.Registerations.Where(r => r.StaffId == StaffId && r.CourseId == id).FirstOrDefaultAsync();
+            if (registeration == null)
+            {
+                return Unauthorized("Yor aren't a member of this course");
+            }
+
             var course = await _context.Courses.FindAsync(id);
             if (course == null)
             {
-                return BadRequest("There is no course with this ID");
+                return NotFound("There is no course with this ID");
             }
-            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             List<Exam> MyExams = await _context.Exams.Where(e => e.CourseId == id && e.StaffId == StaffId).ToListAsync();
             return await _context.Exams.ToListAsync();
@@ -90,6 +106,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost/*("{id}")*/]
+        [Authorize(Roles = "Professor,TA")]
         public async Task<ActionResult<Exam>> PostExam([FromForm] ExamDTO _reqExam)
         {
             Exam exam = new Exam();
@@ -107,22 +124,19 @@ namespace Teamspace.Controllers
             exam.CourseId = _reqExam.CourseId;
             // JWT انهي دكتور الي فاتح
 
-            exam.StaffId = 1;
+            exam.StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             _context.Exams.Add(exam);
             await _context.SaveChangesAsync();
 
             return NoContent();
 
-            // Redirect with 301 Status code to GetAllExams
-            //string newUrl = Url.Action("GetAllExams", "Exams");
-            //return RedirectPermanent(newUrl);
-            return Ok(exam);
         }
 
         
        
         [HttpPut("{id}")]
+        [Authorize(Roles = "Professor,TA")]
         public async Task<IActionResult> PutExam(int id, [FromHeader] ExamDTO _reqExam)
         {
             Exam exam = await _context.Exams.FindAsync(id);
@@ -147,31 +161,13 @@ namespace Teamspace.Controllers
 
             _context.Entry(exam).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-            /*
-            شايف ملهاش لازمة بس الذكاء اقترحها عليها 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!ExamExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-            */
-            // Redirect with 301 Status code to GetAllExams
-            string newUrl = Url.Action("GetAllExams", "Exams");
-            return RedirectPermanent(newUrl);
+
+            return NoContent();
         }
 
         // DELETE: api/Exams/5
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin,Professor,TA")]
         public async Task<IActionResult> DeleteExam(int id)
         {
 
@@ -190,15 +186,14 @@ namespace Teamspace.Controllers
             _context.Exams.Remove(exam);
             await _context.SaveChangesAsync();
 
-            // Redirect with 301 Status code to GetAllExams
-            string newUrl = Url.Action("GetAllExams", "Exams");
-            return RedirectPermanent(newUrl);
+            return NoContent();
         }
 
 
         // يجيب كل الامتحانات الخاصة بطالب معين
 
         [HttpGet]
+        [Authorize]
 
         public async Task<ActionResult<IEnumerable<Exam>>> GetStudentExams(int studentId)
         {
@@ -213,6 +208,12 @@ namespace Teamspace.Controllers
              }
              */
 
+            // مش مسموح يشوف اجابات طالب اخر غيره هو بس
+            int currentStudent = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentStudent != studentId)
+            {
+                return Unauthorized();
+            }
             // omtimiztion
             var exams = await _context.QuestionAnss
                          .Where(qa => qa.StudentId == studentId)
@@ -228,8 +229,26 @@ namespace Teamspace.Controllers
         // يجيب احابات طالب معين في الامتحان ده والفرونت يقدر يعرف درجته
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<QuestionAns>>> GetStudentExam(int studentId,int examId)
         {
+            var exam = await _context.Exams.FindAsync(examId);
+            if (exam == null)
+            {
+                return NotFound("There is no exam with this ID");
+            }
+            var student = await _context.Students.FindAsync(studentId);
+            if (student == null)
+            {
+                return NotFound("There is no student with this ID");
+            }
+            // مش مسموح يشوف اجابات طالب اخر غيره هو بس
+            int currentStudent = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentStudent != studentId)
+            {
+                return Unauthorized();
+            }
+
             var questionIds = await _context.Questions
                                .Where(q => q.ExamId == examId)
                                .Select(q => q.Id)
@@ -243,9 +262,21 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Professor,TA")]
 
-        public async Task<List<StudentExamResult>> GetStudentGradesForExam(int examId)
+        public async Task<ActionResult<IEnumerable<StudentExamResult>>> GetStudentGradesForExam(int examId)
         {
+            var exam = await _context.Exams.FindAsync(examId);
+            if (exam == null)
+            {
+                return NotFound("There is no exam with this ID");
+            }
+            int StaffId = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (exam.StaffId != StaffId)
+            {
+                return Unauthorized("This Exam is not for you");
+            }
+
             var results = await _context.QuestionAnss
                 .Include(qa => qa.Question)  
                 .Include(qa => qa.Student)

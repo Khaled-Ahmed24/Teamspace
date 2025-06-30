@@ -8,6 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Humanizer;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using Teamspace.Services;
+using Teamspace.Repositories;
+using System.Runtime.ConstrainedExecution;
+using Microsoft.AspNetCore.Authorization;
 
 
 [ApiController]
@@ -17,42 +20,75 @@ public class ChatController : ControllerBase
     private readonly AppDbContext _context;
     private readonly IHubContext<ChatHub> _chatHub;
     private readonly INotificationService _notificationService;
-    public ChatController(AppDbContext context, IHubContext<ChatHub> chatHub, INotificationService notificationService)
+    private readonly AccountRepo _accountRepo;
+    public ChatController(AppDbContext context, IHubContext<ChatHub> chatHub, INotificationService notificationService, AccountRepo accountRepo)
     {
         _context = context;
         _chatHub = chatHub;
         _notificationService = notificationService;
+        _accountRepo = accountRepo;
     }
 
     [HttpPost("send")]
+    [Authorize]
     public async Task<IActionResult> SendMessage([FromForm] ChatMessageDto dto)
     {
-        
         var message = new ChatMessage
         {
             FromUserEmail = dto.FromUserEmail,
             ToUserEmail = dto.ToUserEmail,
-            Message = dto.Message
+            Message = dto.Message,
+            SentAt = DateTime.UtcNow
         };
 
-        using (var stream = new MemoryStream())
+        string base64File = null;
+        string fileName = null;
+        string mimeType = null;
+
+        if (dto.File != null && dto.File.Length > 0)
         {
-            await dto.File.CopyToAsync(stream);
-            message.File = stream.ToArray();
+            using (var stream = new MemoryStream())
+            {
+                await dto.File.CopyToAsync(stream);
+                var bytes = stream.ToArray();
+                message.File = bytes;
+
+                base64File = Convert.ToBase64String(bytes);
+                fileName = dto.File.FileName;
+                mimeType = dto.File.ContentType; // مثل image/png أو application/pdf
+            }
         }
 
-        _context.ChatMessages.Add(message);
-        await _context.SaveChangesAsync();
+        var payload = new
+        {
+            text = dto.Message,
+            file = base64File,
+            fileName = fileName,
+            mimeType = mimeType,
+            timestamp = DateTime.UtcNow.ToString("HH:mm")
+        };
 
         await _chatHub.Clients.User(dto.ToUserEmail)
-                      .SendAsync("ReceiveMessage", dto.FromUserEmail, dto.Message);
+                      .SendAsync("ReceiveMessage", dto.FromUserEmail, System.Text.Json.JsonSerializer.Serialize(payload));
 
         return Ok();
     }
 
+
     [HttpGet("conversation/{user1Email }/{user2Email }")]
+    [Authorize]
     public async Task<IActionResult> GetConversation(string user1Email, string user2Email)
     {
+        var user1 = _accountRepo.GetByEmail(user1Email);
+        if (user1 == null)
+        {
+            return BadRequest("there is no user with this email1"); ;
+        }
+        var user2 = _accountRepo.GetByEmail(user2Email);
+        if (user2 == null)
+        {
+            return BadRequest("there is no user with this email2"); ;
+        }
         var messages = await _context.ChatMessages
             .Where(m =>
                 (m.FromUserEmail == user1Email && m.ToUserEmail == user2Email) ||
@@ -67,8 +103,14 @@ public class ChatController : ControllerBase
     // بجيب كل اليورز الي كلموني وبععته مترتبين مترتبين من الاحدث للاقدم
 
     [HttpGet("users/{email}")]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<ChatUserDto>>> GetUserChats(string email)
     {
+        var user1 = _accountRepo.GetByEmail(email);
+        if (user1 == null)
+        {
+            return BadRequest("there is no user with this email1"); ;
+        }
         var messages = await _context.ChatMessages
             .Where(m => m.FromUserEmail == email || m.ToUserEmail == email)
             .OrderByDescending(m => m.SentAt)
@@ -97,9 +139,9 @@ public class ChatController : ControllerBase
     // ------------------------------------ GroupChat--------------------------------------
 
     [HttpPost("send-group")]
+    [Authorize]
     public async Task<IActionResult> SendGroupMessage([FromForm] GroupMessageDto dto)
     {
-
 
         string groupName = await GroupName(dto.CourseId);
 
@@ -110,13 +152,39 @@ public class ChatController : ControllerBase
             Message = dto.Message,
             SentAt = DateTime.UtcNow
         };
+        string base64File = null;
+        string fileName = null;
+        string mimeType = null;
 
-        _context.GroupMessages.Add(message);
-        await _context.SaveChangesAsync();
+        if (dto.File != null && dto.File.Length > 0)
+        {
+            using (var stream = new MemoryStream())
+            {
+                await dto.File.CopyToAsync(stream);
+                var bytes = stream.ToArray();
+                message.File = bytes;
 
+                base64File = Convert.ToBase64String(bytes);
+                fileName = dto.File.FileName;
+                mimeType = dto.File.ContentType; // مثل image/png أو application/pdf
+            }
+        }
 
+        var payload = new
+        {
+            text = dto.Message,
+            file = base64File,
+            fileName = fileName,
+            mimeType = mimeType,
+            timestamp = DateTime.UtcNow.ToString("HH:mm")
+        };
+
+        // إرسال الرسالة
         await _chatHub.Clients.Group(groupName)
-                      .SendAsync("ReceiveGroupMessage", dto.SenderEmail, dto.Message);
+                      .SendAsync("ReceiveGroupMessage", dto.SenderEmail, System.Text.Json.JsonSerializer.Serialize(payload));
+                      
+
+
 
         // --------------------SendNotification-------------- 
 
@@ -130,19 +198,18 @@ public class ChatController : ControllerBase
              NotificationType.Message
              );
 
-            /*
-            // 2. لو المستخدم متصل، ابعتله إشعار لحظي باستخدام SignalR
-            await _chatHub.Clients.User(email)
-                .SendAsync("ReceiveNotification", $"📢 رسالة جديدة في كورس {groupName}");
-            */
+           
         }
 
         return Ok();
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetGroupConversation(int courseId)
     {
+        var course = await _context.Courses.Where(c=> c.Id == courseId).FirstOrDefaultAsync();
+        if (course == null) { return NotFound("there is no group with this Id"); }
         var messages = await _context.GroupMessages
             .Where(m => m.CourseId == courseId)
             .OrderBy(m => m.SentAt)
@@ -150,8 +217,15 @@ public class ChatController : ControllerBase
         return Ok(messages);
     }
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<ChatUserDto>>> GetUserGroups(string email)
     {
+        var user1 = _accountRepo.GetByEmail(email);
+        if (user1 == null)
+        {
+            return BadRequest("there is no user with this email1"); ;
+        }
+
         var messages = new List<GroupMessage>();
         var staff = await _context.Staffs.Where(s=> s.Email == email).FirstOrDefaultAsync();
         var student = await _context.Students.Where(s => s.Email == email).FirstOrDefaultAsync();

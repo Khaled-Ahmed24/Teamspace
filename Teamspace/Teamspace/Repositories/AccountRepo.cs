@@ -7,7 +7,7 @@ using System.Data;
 using System.Security.Cryptography;
 using Teamspace.Configurations;
 using Teamspace.DTO;
-using Teamspace.Migrations;
+//using Teamspace.Migrations;
 using Teamspace.Models;
 using Teamspace.SpaghettiModels;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -205,7 +205,7 @@ namespace Teamspace.Repositories
                             var errs = validationResults.Select(r => r.ErrorMessage).ToList();
                             foreach (var err in errs) if(err != null)RowErrors.Add(err);
                         }
-                        if(RowErrors.Count > 0)
+                        if (RowErrors.Count > 0)
                         {
                             Errors.Add(new ExcelErrorDTO
                             {
@@ -214,17 +214,17 @@ namespace Teamspace.Repositories
                             });
                             continue;
                         }
-                            
+
                         // role
                         var input = worksheet.Cells[i, 9].Text.Trim();
                         if (Enum.TryParse<Role>(input, true, out Role role))
                         {
                             var ok = await Add(3, account);
-                            if(ok != "Ok") RowErrors.Add(ok);
+                            if (ok != "Ok") RowErrors.Add(ok);
                         }
                         else RowErrors.Add("Invalid role format. Please enter a valid role (Student, Professor, or TA).");
                     }
-                }            
+                }
             }
             return Errors;
         }

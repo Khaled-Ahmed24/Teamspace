@@ -9,6 +9,8 @@ using Teamspace.Configurations;
 using Teamspace.Models;
 using Teamspace.DTO;
 using AIQAAssistant.Services;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Teamspace.Controllers
 {
@@ -29,31 +31,64 @@ namespace Teamspace.Controllers
 
 
         [HttpGet]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<QuestionAns>>> GetExamAnss(int examId,int studentId)
         {
+            var exam = await _context.Exams.FindAsync(examId);
+            if (exam == null)
+            {
+                return BadRequest("There is no exam with this ID");
+            }
+            // مش مسموح يشوف اجابات طالب اخر غيره هو بس
+            int currentStudent = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentStudent != studentId)
+            {
+                return Unauthorized();
+            }
             var questionAns = await GetStudentExamAnswers(examId, studentId);
 
             return questionAns;
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<QuestionAns>> GetQuestionAns(int questionId, int studentId)
         {
+
+            var question = await _context.Questions.FindAsync(questionId);
+            if (question == null) return NotFound("there is no question with this Id");
+            var student = await _context.Students.FindAsync(studentId);
+            if (student == null) return BadRequest("there is no student with this Id");
+
+            int currentStudent = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentStudent != studentId)
+            {
+                return Unauthorized();
+            }
             var questionAns = await _context.QuestionAnss.Where(q => q.QuestionId == questionId
                                                                 && q.StudentId == studentId).FirstOrDefaultAsync();
 
-            if (questionAns == null)
-            {
-                return NotFound();
-            }
+            if (questionAns == null) return NotFound();
 
             return questionAns;
         }
 
         // init answer for all question for this student in this exam
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<IEnumerable<QuestionAns>>> InitExamAnss(int examId, int studentId)
         {
+            var exam = await _context.Exams.FindAsync(examId);
+            if (exam == null)
+            {
+                return BadRequest("There is no exam with this ID");
+            }
+            int currentStudent = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentStudent != studentId)
+            {
+                return Unauthorized();
+            }
+
             var questionsId = await (from question in _context.Questions 
                                      where(question.ExamId == examId)
                                      select question.Id 
@@ -75,6 +110,7 @@ namespace Teamspace.Controllers
 
 
         [HttpPut("{id}")]
+        [Authorize]
         public async Task<IActionResult> PutQuestionAns(List <QuestionAnsDTO> questiosnAns)
         {
             foreach (var item in questiosnAns)
@@ -82,29 +118,24 @@ namespace Teamspace.Controllers
                 var question = await _context.Questions.Where(q => q.Id == item.QuestionId).FirstOrDefaultAsync();
                 var ans = await _context.QuestionAnss.Where(q => q.QuestionId == item.QuestionId
                                                             && q.StudentId == item.StudentId).FirstOrDefaultAsync();
-
-
-                var questionAns = await _context.QuestionAnss.Where(q => q.QuestionId == item.QuestionId && 
-                                                                    q.StudentId == item.StudentId).FirstOrDefaultAsync();
-
+                ans.StudentAns = item.StudentAns;
 
                 if (question.Type == QuestionType.Written)
                 {
                     string model_answer = question.CorrectAns;
                     string question_title = question.Title;
-                    string cur_answer = questionAns.StudentAns;
+                    string cur_answer = item.StudentAns;
                     double grad = question.Grade;
                     int id = question.Id;
-                    var gradingResult = await _gradingService.GradeAnswerAsync(question, questionAns);
-                    questionAns.Grade += gradingResult.Grade;
-                    questionAns.reasoning = gradingResult.Reasoning;
+                    var gradingResult = await _gradingService.GradeAnswerAsync(question, ans);
+                    ans.Grade += gradingResult.Grade;
+                    ans.reasoning = gradingResult.Reasoning;
                     
                     // ai 
                 }
                 else
                 {
-                    ans.StudentAns = questionAns.StudentAns;
-                    if (questionAns.StudentAns == question.CorrectAns)
+                    if (item.StudentAns == question.CorrectAns)
                     {
                         ans.Grade = question.Grade;
                     }
@@ -116,6 +147,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPut /*("{id}")*/]
+        [Authorize]
         public async Task<IActionResult> Put1(QuestionAnsDTO req_QuestionAnsDTO)
         {
             var questiosnAns = await _context.QuestionAnss.Where(q => q.QuestionId == req_QuestionAnsDTO.QuestionId && 
@@ -149,47 +181,69 @@ namespace Teamspace.Controllers
 
         }
         [HttpPost]
-
+        [Authorize(Roles = "Professor,TA")]
         public async Task<IActionResult> EvaluateExam(int examId, int studentId)
         {
+            var exam = await (_context.Exams.Where(e => e.Id == examId).FirstOrDefaultAsync());
+            if (exam == null)
+            {
+                return BadRequest("There is no exam with this ID");
+            }
+
+            int currentstaff = int.Parse(HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            if (currentstaff != exam.StaffId)
+            {
+                return Unauthorized("this exam is not for you");
+            }
+
             List<QuestionAns> answer = await GetStudentExamAnswers(examId, studentId);
             double Total_Grade = 0;
             foreach (var item in answer)
             {
                 Total_Grade += item.Grade;
             }
-            Exam exam = await (_context.Exams.Where(e => e.Id == examId).FirstOrDefaultAsync());
-            Course course = await (_context.Courses.Where(c => c.Id == exam.CourseId).FirstOrDefaultAsync());
-            Subject subject = await (_context.Subjects.Where(s => s.Id == course.SubjectId).FirstOrDefaultAsync());
-            int subjectId = subject.Id;
-            StudentStatus studentStatus = await(_context.StudentStatuses.Where(s=> s.StudentId == studentId 
-                                                && s.SubjectId == subjectId ).FirstOrDefaultAsync());
+            var course = await (_context.Courses.Where(c => c.Id == exam.CourseId).FirstOrDefaultAsync());
+            int subjectId = course.SubjectId;
+            var studentStatus = await(_context.StudentStatuses.Where(s=> s.StudentId == studentId
+                                                && s.SubjectId == subjectId).FirstOrDefaultAsync());
 
-            studentStatus.Grade = Total_Grade;
+            studentStatus.Grade += Total_Grade;
             _context.Entry(studentStatus).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return NoContent(); 
         }
 
 
-        //[HttpDelete("{id}")]
-        // for clear answer 
-        //public async Task<IActionResult> ClearQuestionAns(int id, int studentId)
-        //{
-        //    var questionAns = await _context.QuestionAnss.Where(q => q.QuestionId == id
-        //                                                        && q.StudentId == studentId).FirstOrDefaultAsync();
-        //    if (questionAns == null)
-        //    {
-        //        return NotFound();
-        //    }
+      
 
-        //    _context.QuestionAnss.Remove(questionAns);
-        //    await _context.SaveChangesAsync();
+        [HttpPut]
+        [Authorize(Roles = "Professor,TA")]
+        public async Task<IActionResult> EditQuestionAnsGrade(int studentId, int questionId, double grade)
+        {
+            var student = await _context.Students.Where(s => s.Id == studentId).FirstOrDefaultAsync();
+            if (student == null) { return BadRequest("there is no student with this Id"); }
 
-        //    return NoContent();
-        //}
+            var questionAns = await _context.QuestionAnss.Where(q=> q.StudentId == studentId && q.QuestionId == questionId).FirstOrDefaultAsync();
+            if (questionAns == null)
+            {
+                return NotFound("there is no answer for this student on this question");
+            }
+            var question = await _context.Questions.Where(q=> q.Id == questionId).FirstOrDefaultAsync();
+            var exam = await _context.Exams.Where(e => e.Id == question.ExamId).FirstOrDefaultAsync();
+            var course = await (_context.Courses.Where(c => c.Id == exam.CourseId).FirstOrDefaultAsync());
+            int subjectId = course.SubjectId;
+            var studentStatus = await (_context.StudentStatuses.Where(s => s.StudentId == studentId
+                                                && s.SubjectId == subjectId).FirstOrDefaultAsync());
 
+            studentStatus.Grade -= questionAns.Grade;
+            questionAns.Grade = grade;
+            studentStatus.Grade += questionAns.Grade;
+            _context.Entry(questionAns).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
 
+        [NonAction]
         private async Task<List<QuestionAns>> GetStudentExamAnswers(int examId, int studentId)
         {
             return await (from question_ans in _context.QuestionAnss
@@ -200,6 +254,10 @@ namespace Teamspace.Controllers
                                 && question_ans.StudentId == studentId
                           select question_ans).ToListAsync();
         }
+
+        
+
+
 
 
         ///////////////////////Assignment///////////////////////////////////////
