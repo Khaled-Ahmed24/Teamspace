@@ -63,6 +63,10 @@ namespace Teamspace.Controllers
             course.Semester = _reqCourse.Semester;
             course.CreatedAt = DateTime.Now;
 
+            var course2 = await _context.Courses.Where(c=> c.SubjectId == course.SubjectId && c.Semester == course.Semester &&
+                                                       c.CreatedAt.Year == course.CreatedAt.Year).FirstOrDefaultAsync();
+            if (course2 != null) return BadRequest("this course has been already created");
+
             await _context.Courses.AddAsync(course);
             await _context.SaveChangesAsync();
 
@@ -76,9 +80,7 @@ namespace Teamspace.Controllers
             }
             await _context.SaveChangesAsync();
 
-            // Redirect with 301 Status code to GetDepartments
-            string newUrl = Url.Action("GetCourses", "Courses");
-            return RedirectPermanent(newUrl);
+            return Ok(course);
         }
 
 
@@ -130,8 +132,31 @@ namespace Teamspace.Controllers
             _context.Courses.Remove(course);
             await _context.SaveChangesAsync();
 
-            string newUrl = Url.Action("GetCourses", "Courses");
-            return RedirectPermanent(newUrl);
+            return NoContent();
+        }
+
+
+        [HttpPut]
+        [Authorize(Roles = "Admin,Professor")]
+        public async Task<IActionResult> FinishCourse(int courseId,double successGrad)
+        {
+            var course = await _context.Courses.Where(c => c.Id == courseId).FirstOrDefaultAsync();
+            if (course == null) { return NotFound("There is no course with this Id"); }
+            var studentsIds = await _context.StudentStatuses.Where(s=> s.SubjectId == course.SubjectId && 
+                                                                   s.Status == Status.Pending).ToListAsync();
+            foreach (var student in studentsIds)
+            {
+                if (student.Grade >= successGrad)
+                {
+                    student.Status = Status.Succeed;
+                }
+                else
+                {
+                    student.Grade = 0;
+                    student.Status = Status.Failed;// شيل شيل شيل شيل يا طويل العمر ي شييييييييييييل 
+                }
+            }
+            return NoContent();
         }
     }
 }

@@ -29,7 +29,7 @@ namespace Teamspace.Controllers
 
         // GET: api/Exams
         [HttpGet]
-        [Authorize(Roles = "Admin,Professor,TA")]
+        [Authorize(Roles = "Professor,TA")]
         // my all exams
         public async Task<ActionResult<IEnumerable<Exam>>> GetMyExams()
         {
@@ -44,7 +44,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Professor,TA")]
+        [Authorize(Roles = "Professor,TA")]
         // all exams for specific Course
         public async Task<ActionResult<IEnumerable<ExamDTO>>> GetCourseExams(int id)
         {
@@ -81,7 +81,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,Professor,TA")]
+        [Authorize(Roles = "Professor,TA")]
 
         // my all exams for specific Course
         public async Task<ActionResult<IEnumerable<Exam>>> GetMyCourseExams(int id)// id for Course
@@ -106,7 +106,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpPost/*("{id}")*/]
-        [Authorize(Roles = "Admin,Professor,TA")]
+        [Authorize(Roles = "Professor,TA")]
         public async Task<ActionResult<Exam>> PostExam([FromForm] ExamDTO _reqExam)
         {
             Exam exam = new Exam();
@@ -136,7 +136,7 @@ namespace Teamspace.Controllers
         
        
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Professor,TA")]
+        [Authorize(Roles = "Professor,TA")]
         public async Task<IActionResult> PutExam(int id, [FromHeader] ExamDTO _reqExam)
         {
             Exam exam = await _context.Exams.FindAsync(id);
@@ -161,10 +161,8 @@ namespace Teamspace.Controllers
 
             _context.Entry(exam).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-           
-            // Redirect with 301 Status code to GetAllExams
-            string newUrl = Url.Action("GetAllExams", "Exams");
-            return RedirectPermanent(newUrl);
+
+            return NoContent();
         }
 
         // DELETE: api/Exams/5
@@ -188,9 +186,7 @@ namespace Teamspace.Controllers
             _context.Exams.Remove(exam);
             await _context.SaveChangesAsync();
 
-            // Redirect with 301 Status code to GetAllExams
-            string newUrl = Url.Action("GetAllExams", "Exams");
-            return RedirectPermanent(newUrl);
+            return NoContent();
         }
 
 
@@ -266,7 +262,7 @@ namespace Teamspace.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin,Professor,TA")]
+        [Authorize(Roles = "Professor,TA")]
 
         public async Task<ActionResult<IEnumerable<StudentExamResult>>> GetStudentGradesForExam(int examId)
         {
