@@ -8,7 +8,7 @@ The Team Space Web Application is a comprehensive digital platform designed spec
 
 Experience the Team Space Web Application in action:
 
-**[🚀 View Live Demo]([YOUR_DEMO_LINK_HERE](https://drive.google.com/file/d/1ARKvkOixVPmIhTNwIhsRd9zJlToVUt7L/view))**
+**[🚀 View Live Demo]([https://drive.google.com/file/d/1ARKvkOixVPmIhTNwIhsRd9zJlToVUt7L/view])**
 
 *Note: The demo showcases the full functionality of the platform with sample data for demonstration purposes.*
 
