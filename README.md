@@ -4,6 +4,16 @@
 
 The Team Space Web Application is a comprehensive digital platform designed specifically for the Faculty of Computer Science and Information Technology at Assiut University. This system serves as an integrated solution that replaces manual processes and provides a centralized platform for academic activities, communication, and course management.
 
+## 🎯 Live Demo
+
+Experience the Team Space Web Application in action:
+
+**[🚀 View Live Demo]([YOUR_DEMO_LINK_HERE](https://drive.google.com/file/d/1ARKvkOixVPmIhTNwIhsRd9zJlToVUt7L/view))**
+
+*Note: The demo showcases the full functionality of the platform with sample data for demonstration purposes.*
+
+---
+
 The application supports three main user roles:
 - **Faculty Admin**: Manages user accounts, general news, schedules, and system administration
 - **Professors & TAs**: Manage subjects, upload materials, create exams, conduct live lectures, and communicate with students
@@ -214,6 +224,22 @@ The application uses the following main entities:
 - **HTTPS Enforcement**: Secure data transmission
 - **Input Validation**: Comprehensive data validation and sanitization
 - **Rate Limiting**: API rate limiting to prevent abuse
+
+## 🎬 Demo Credentials
+
+For testing the live demo, you can use the following sample accounts:
+
+### Admin Account
+- **Email**: `admin@aun.edu.eg`
+- **Password**: `Admin123!`
+
+### Professor Account (Sample)
+- **Email**: `professor@aun.edu.eg`
+- **Password**: `Professor123!`
+
+### Student Account (Sample)
+- **Email**: `student@aun.edu.eg`
+- **Password**: `Student123!`
 
 ## Contributing
 
